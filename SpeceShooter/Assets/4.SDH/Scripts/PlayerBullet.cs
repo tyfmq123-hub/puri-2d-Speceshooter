@@ -9,7 +9,13 @@ public class PlayerBullet : MonoBehaviour
     {
         transform.Translate(Vector2.up * speed * Time.deltaTime);
 
-        Vector3 viewPos = Camera.main.WorldToViewportPoint(transform.position);
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null)
+        {
+            return;
+        }
+
+        Vector3 viewPos = mainCamera.WorldToViewportPoint(transform.position);
         if (viewPos.y > 1f)
             Destroy(gameObject);
     }
@@ -18,7 +24,10 @@ public class PlayerBullet : MonoBehaviour
     {
         if (other.CompareTag("Enemy"))
         {
-            ImpactBulletManager.Instance.SpawnImpact(transform.position);
+            if (ImpactBulletManager.Instance != null)
+            {
+                ImpactBulletManager.Instance.SpawnImpact(transform.position);
+            }
             Destroy(gameObject);
         }
     }

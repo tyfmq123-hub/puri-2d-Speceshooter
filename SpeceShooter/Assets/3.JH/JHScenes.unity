@@ -293,7 +293,8 @@ MonoBehaviour:
   boomSlot: 0
   moveSpeed: 5
   attackCooldown: 0.15
-  moveStateParam: MoveState
+  bulletPrefab: {fileID: 0}
+  firePoint: {fileID: 0}
 --- !u!95 &610274860
 Animator:
   serializedVersion: 7
