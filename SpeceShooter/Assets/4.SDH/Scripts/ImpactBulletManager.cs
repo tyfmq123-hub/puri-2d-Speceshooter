@@ -1,36 +1,37 @@
 using UnityEngine;
-using System.Collections.Generic;
+using System;
 
 public class ImpactBulletManager : MonoBehaviour
 {
     public static ImpactBulletManager Instance;
 
-    public GameObject impactPrefab;
-    public int poolSize = 15;
-
-    private Queue<GameObject> pool = new Queue<GameObject>();
+    // 대리자 - 충돌 데미지 발생 시 호출
+    public Action<int> OnPlayerDamaged;
+    public Action<int> OnEnemyDamaged;
 
     void Awake()
     {
         Instance = this;
-        for (int i = 0; i < poolSize; i++)
-        {
-            GameObject obj = Instantiate(impactPrefab);
-            obj.SetActive(false);
-            pool.Enqueue(obj);
-        }
     }
 
-    public void SpawnImpact(Vector2 position)
+    // 적 총알이 player에 맞았을 때
+    public void DamagePlayer(Player player, int damage)
     {
-        GameObject impact = pool.Count > 0 ? pool.Dequeue() : Instantiate(impactPrefab);
-        impact.transform.position = position;
-        impact.SetActive(true);
+        if (player == null) return;
+
+        player.life -= damage;
+        OnPlayerDamaged?.Invoke(damage);
+
+        if (player.life <= 0)
+            Destroy(player.gameObject);
     }
 
-    public void ReturnToPool(GameObject impact)
+    // player 총알이 적에 맞았을 때 (Enemy.cs의 OnHit 호출)
+    public void DamageEnemy(Collider2D enemyCol, int damage)
     {
-        impact.SetActive(false);
-        pool.Enqueue(impact);
+        if (enemyCol == null) return;
+
+        enemyCol.SendMessage("OnHit", damage, SendMessageOptions.DontRequireReceiver);
+        OnEnemyDamaged?.Invoke(damage);
     }
 }

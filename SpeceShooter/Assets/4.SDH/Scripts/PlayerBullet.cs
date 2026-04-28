@@ -10,10 +10,7 @@ public class PlayerBullet : MonoBehaviour
         transform.Translate(Vector2.up * speed * Time.deltaTime);
 
         Camera mainCamera = Camera.main;
-        if (mainCamera == null)
-        {
-            return;
-        }
+        if (mainCamera == null) return;
 
         Vector3 viewPos = mainCamera.WorldToViewportPoint(transform.position);
         if (viewPos.y > 1f)
@@ -24,10 +21,7 @@ public class PlayerBullet : MonoBehaviour
     {
         if (other.CompareTag("Enemy"))
         {
-            if (ImpactBulletManager.Instance != null)
-            {
-                ImpactBulletManager.Instance.SpawnImpact(transform.position);
-            }
+            ImpactBulletManager.Instance.DamageEnemy(other, damage);
             Destroy(gameObject);
         }
     }
