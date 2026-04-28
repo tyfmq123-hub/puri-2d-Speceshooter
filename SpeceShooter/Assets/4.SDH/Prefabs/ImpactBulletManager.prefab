@@ -44,5 +44,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4981e6e021891724cbf0ec5d92e51553, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ImpactBulletManager
-  impactPrefab: {fileID: 0}
+  impactPrefab: {fileID: 8192318464856842873, guid: 6da2146613365824a92a907f32265453, type: 3}
   poolSize: 15

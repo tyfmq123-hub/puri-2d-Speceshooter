@@ -1,4 +1,4 @@
-using UnityEngine;
+/*using UnityEngine;
 using System.Collections;
 
 public class ImpactEffect : MonoBehaviour
@@ -15,4 +15,4 @@ public class ImpactEffect : MonoBehaviour
         yield return new WaitForSeconds(duration);
         Destroy(gameObject);
     }
-}
+}*/

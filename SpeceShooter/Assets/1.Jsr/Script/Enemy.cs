@@ -15,6 +15,7 @@ public class Enemy : MonoBehaviour
     public float speed = 2f;
     public int health;
     public Sprite[] sprites;
+    [SerializeField] private bool useHealthByType = false;
 
     [Header("Enemy C Attack")]
     [SerializeField] private GameObject enemyBulletPrefab;
@@ -29,8 +30,12 @@ public class Enemy : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         rigidBody = GetComponent<Rigidbody2D>();
+        EnsureFirePointReference();
 
-        SetHealthByType();
+        if (useHealthByType)
+        {
+            SetHealthByType();
+        }
         lastFireTime = Time.time;
 
         if (rigidBody != null)
@@ -46,7 +51,11 @@ public class Enemy : MonoBehaviour
 
     private void OnValidate()
     {
-        SetHealthByType();
+        EnsureFirePointReference();
+        if (useHealthByType)
+        {
+            SetHealthByType();
+        }
         if (fireInterval < 0.1f)
         {
             fireInterval = 0.1f;
@@ -66,16 +75,12 @@ public class Enemy : MonoBehaviour
             case EnemyType.C:
                 health = 150;
                 break;
-            default:
-                health = 50;
-                break;
         }
     }
 
     private void OnHit(int damage)
     {
         health -= damage;
-
         if (spriteRenderer != null && sprites != null && sprites.Length > 1)
         {
             spriteRenderer.sprite = sprites[1];
@@ -151,7 +156,7 @@ public class Enemy : MonoBehaviour
 
     private void TryFireEnemyBullet()
     {
-        if (enemyType != EnemyType.C)
+        if (!IsEnemyCShooter())
         {
             return;
         }
@@ -171,5 +176,39 @@ public class Enemy : MonoBehaviour
 
         Instantiate(enemyBulletPrefab, spawnPosition, spawnRotation);
         lastFireTime = Time.time;
+    }
+
+    private void EnsureFirePointReference()
+    {
+        if (!IsEnemyCShooter() || firePoint != null)
+        {
+            return;
+        }
+
+        Transform directMatch = transform.Find("FirePoint");
+        if (directMatch == null)
+        {
+            directMatch = transform.Find("FierPoint");
+        }
+        if (directMatch != null)
+        {
+            firePoint = directMatch;
+            return;
+        }
+
+        foreach (Transform child in transform)
+        {
+            string childName = child.name.ToLowerInvariant();
+            if (childName.Contains("fire") || childName.Contains("fier"))
+            {
+                firePoint = child;
+                return;
+            }
+        }
+    }
+
+    private bool IsEnemyCShooter()
+    {
+        return enemyType == EnemyType.C || gameObject.tag == "EnemyC";
     }
 }

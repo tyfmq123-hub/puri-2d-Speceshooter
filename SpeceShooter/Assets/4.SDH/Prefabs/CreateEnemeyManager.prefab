@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5724356028663016468}
+  - component: {fileID: 7141325947059155212}
   m_Layer: 0
   m_Name: CreateEnemeyManager
   m_TagString: Untagged
@@ -31,3 +32,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7141325947059155212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1845332883152825051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb5eff8410ebbd04fa21f8a31386e41f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CreateEnemyManager
+  enemyAPrefab: {fileID: 5357363269009084651, guid: e4fde29c370a9fb4ead2f99d5b0d5500, type: 3}
+  enemyBPrefab: {fileID: 5902332242425007054, guid: 33895668b27dd7f4682b6d4bcfe771fd, type: 3}
+  enemyCPrefab: {fileID: 7022888939626580558, guid: 8cc3e07ddc5ed2e498972fffd9933359, type: 3}
+  spawnInterval: 2

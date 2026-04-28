@@ -40,7 +40,21 @@ public class EnemyBullet : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Player playerComp = other.GetComponent<Player>();
-            ImpactBulletManager.Instance.DamagePlayer(playerComp, damage);
+
+            if (ImpactBulletManager.Instance != null)
+            {
+                ImpactBulletManager.Instance.DamagePlayer(playerComp, damage);
+            }
+            else if (playerComp != null)
+            {
+                // Fallback when manager is missing in scene.
+                playerComp.life -= damage;
+                if (playerComp.life <= 0)
+                {
+                    Destroy(playerComp.gameObject);
+                }
+            }
+
             Destroy(gameObject);
         }
     }

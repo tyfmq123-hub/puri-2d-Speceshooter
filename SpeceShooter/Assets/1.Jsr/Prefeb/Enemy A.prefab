@@ -174,3 +174,10 @@ MonoBehaviour:
   health: 50
   sprites:
   - {fileID: 4326287474489854147, guid: 138040323294fd440a3a823e5d70ad01, type: 3}
+  - {fileID: 4326287474489854147, guid: 138040323294fd440a3a823e5d70ad01, type: 3}
+  useHealthByType: 0
+  hitFlashColor: {r: 1, g: 0.35, b: 0.35, a: 1}
+  hitFlashDuration: 0.1
+  enemyBulletPrefab: {fileID: 0}
+  firePoint: {fileID: 0}
+  fireInterval: 1.2
