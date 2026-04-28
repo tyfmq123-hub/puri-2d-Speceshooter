@@ -13,6 +13,6 @@ public class ImpactEffect : MonoBehaviour
     private IEnumerator ReturnAfterDelay()
     {
         yield return new WaitForSeconds(duration);
-        ImpactBulletManager.Instance.ReturnToPool(gameObject);
+        Destroy(gameObject);
     }
 }
