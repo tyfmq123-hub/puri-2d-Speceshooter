@@ -5,27 +5,17 @@ public class EnemyBullet : MonoBehaviour
     public float speed = 6f;
     public int damage = 1;
 
-    private Transform player;
+    // 발사 시점에 고정된 방향
+    private Vector2 direction;
 
-    void OnEnable()
+    public void SetDirection(Vector2 dir)
     {
-        GameObject playerObj = GameObject.FindWithTag("Player");
-        if (playerObj != null)
-            player = playerObj.transform;
+        direction = dir.normalized;
     }
 
     void Update()
     {
-        // player가 살아있으면 실시간으로 방향 업데이트
-        if (player != null)
-        {
-            Vector2 dir = ((Vector2)player.position - (Vector2)transform.position).normalized;
-            transform.Translate(dir * speed * Time.deltaTime, Space.World);
-        }
-        else
-        {
-            transform.Translate(Vector2.down * speed * Time.deltaTime);
-        }
+        transform.Translate(direction * speed * Time.deltaTime, Space.World);
 
         Camera mainCamera = Camera.main;
         if (mainCamera == null) return;
@@ -42,17 +32,12 @@ public class EnemyBullet : MonoBehaviour
             Player playerComp = other.GetComponent<Player>();
 
             if (ImpactBulletManager.Instance != null)
-            {
                 ImpactBulletManager.Instance.DamagePlayer(playerComp, damage);
-            }
             else if (playerComp != null)
             {
-                // Fallback when manager is missing in scene.
                 playerComp.life -= damage;
                 if (playerComp.life <= 0)
-                {
                     Destroy(playerComp.gameObject);
-                }
             }
 
             Destroy(gameObject);

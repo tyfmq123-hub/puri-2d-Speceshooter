@@ -7,8 +7,7 @@ public class EnemyBulletManager : MonoBehaviour
     public static EnemyBulletManager Instance;
 
     public GameObject bulletPrefab;
-    public float fireInterval = 2f;
-    public float bulletSpread = 0.3f;
+    public float fireInterval = 1.5f;
     [SerializeField] private string shooterTag = "EnemyC";
 
     // 대리자 - 적 총알 발사 시 호출
@@ -33,11 +32,6 @@ public class EnemyBulletManager : MonoBehaviour
             GameObject playerObj = GameObject.FindWithTag("Player");
             if (playerObj == null) continue;
 
-            if (string.IsNullOrEmpty(shooterTag))
-            {
-                continue;
-            }
-
             GameObject[] enemies;
             try
             {
@@ -50,38 +44,30 @@ public class EnemyBulletManager : MonoBehaviour
 
             foreach (GameObject enemy in enemies)
             {
-                FireBullets(enemy.transform);
+                FireBullet(enemy.transform, playerObj.transform.position);
             }
 
             OnEnemyFired?.Invoke();
         }
     }
 
-    private void FireBullets(Transform enemyTransform)
+    private void FireBullet(Transform enemyTransform, Vector2 playerPos)
     {
-        if (bulletPrefab == null || enemyTransform == null)
-        {
-            return;
-        }
+        if (bulletPrefab == null || enemyTransform == null) return;
 
         Vector2 origin = GetFireOrigin(enemyTransform);
+        Vector2 direction = (playerPos - origin).normalized;
 
-        // 적 발사 위치 기준으로 2발 spread 발사
-        for (int i = 0; i < 2; i++)
-        {
-            float offsetX = (i == 0 ? -bulletSpread : bulletSpread);
-            Vector2 spawnPos = new Vector2(origin.x + offsetX, origin.y);
-            Instantiate(bulletPrefab, spawnPos, Quaternion.identity);
-        }
+        GameObject bullet = Instantiate(bulletPrefab, origin, Quaternion.identity);
+        EnemyBullet eb = bullet.GetComponent<EnemyBullet>();
+        if (eb != null)
+            eb.SetDirection(direction);
     }
 
     private Vector2 GetFireOrigin(Transform enemyTransform)
     {
         Transform firePoint = enemyTransform.Find("FirePoint");
-        if (firePoint == null)
-        {
-            firePoint = enemyTransform.Find("FierPoint");
-        }
+        if (firePoint == null) firePoint = enemyTransform.Find("FierPoint");
 
         if (firePoint == null)
         {
