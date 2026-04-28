@@ -15,9 +15,15 @@ public class Enemy : MonoBehaviour
     public float speed = 2f;
     public int health;
     public Sprite[] sprites;
+
+    [Header("Enemy C Attack")]
+    [SerializeField] private GameObject enemyBulletPrefab;
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private float fireInterval = 1.2f;
     
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rigidBody;
+    private float lastFireTime;
 
     private void Awake()
     {
@@ -25,6 +31,7 @@ public class Enemy : MonoBehaviour
         rigidBody = GetComponent<Rigidbody2D>();
 
         SetHealthByType();
+        lastFireTime = Time.time;
 
         if (rigidBody != null)
         {
@@ -32,9 +39,18 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        TryFireEnemyBullet();
+    }
+
     private void OnValidate()
     {
         SetHealthByType();
+        if (fireInterval < 0.1f)
+        {
+            fireInterval = 0.1f;
+        }
     }
 
     private void SetHealthByType()
@@ -86,20 +102,30 @@ public class Enemy : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        else if (collision.CompareTag("PlayerBullet"))
+        else
         {
             int damage = GetBulletDamage(collision.gameObject);
             if (damage > 0)
             {
                 OnHit(damage);
+                Destroy(collision.gameObject);
             }
-
-            Destroy(collision.gameObject);
         }
     }
 
     private int GetBulletDamage(GameObject bulletObject)
     {
+        Component playerBulletComponent = bulletObject.GetComponent("PlayerBullet");
+        if (playerBulletComponent != null)
+        {
+            System.Type playerBulletType = playerBulletComponent.GetType();
+            FieldInfo playerDamageField = playerBulletType.GetField("damage");
+            if (playerDamageField != null && playerDamageField.FieldType == typeof(int))
+            {
+                return (int)playerDamageField.GetValue(playerBulletComponent);
+            }
+        }
+
         Component bulletComponent = bulletObject.GetComponent("Bullet");
         if (bulletComponent == null)
         {
@@ -121,5 +147,29 @@ public class Enemy : MonoBehaviour
         }
 
         return 0;
+    }
+
+    private void TryFireEnemyBullet()
+    {
+        if (enemyType != EnemyType.C)
+        {
+            return;
+        }
+
+        if (enemyBulletPrefab == null)
+        {
+            return;
+        }
+
+        if (Time.time - lastFireTime < fireInterval)
+        {
+            return;
+        }
+
+        Vector3 spawnPosition = firePoint != null ? firePoint.position : transform.position;
+        Quaternion spawnRotation = firePoint != null ? firePoint.rotation : Quaternion.identity;
+
+        Instantiate(enemyBulletPrefab, spawnPosition, spawnRotation);
+        lastFireTime = Time.time;
     }
 }

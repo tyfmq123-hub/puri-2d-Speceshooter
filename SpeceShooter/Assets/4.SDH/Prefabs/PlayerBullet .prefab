@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 6067277759852500531}
   m_Layer: 0
   m_Name: 'PlayerBullet '
-  m_TagString: Untagged
+  m_TagString: BorderBullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -171,4 +171,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBullet
   speed: 10
-  damage: 1
+  damage: 10
