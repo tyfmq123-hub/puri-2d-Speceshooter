@@ -16,6 +16,7 @@ public class Enemy : MonoBehaviour
     public int health;
     public Sprite[] sprites;
     [SerializeField] private bool useHealthByType = false;
+    [SerializeField] private float defaultMoveSpeed = 2f;
 
     [Header("Enemy C Attack")]
     [SerializeField] private GameObject enemyBulletPrefab;
@@ -31,6 +32,7 @@ public class Enemy : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         rigidBody = GetComponent<Rigidbody2D>();
         EnsureFirePointReference();
+        EnsureMoveSpeed();
 
         if (useHealthByType)
         {
@@ -46,12 +48,14 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
+        ApplyDownwardMovement();
         TryFireEnemyBullet();
     }
 
     private void OnValidate()
     {
         EnsureFirePointReference();
+        EnsureMoveSpeed();
         if (useHealthByType)
         {
             SetHealthByType();
@@ -59,6 +63,31 @@ public class Enemy : MonoBehaviour
         if (fireInterval < 0.1f)
         {
             fireInterval = 0.1f;
+        }
+    }
+
+    private void EnsureMoveSpeed()
+    {
+        if (defaultMoveSpeed < 0.1f)
+        {
+            defaultMoveSpeed = 0.1f;
+        }
+
+        if (speed <= 0f)
+        {
+            speed = defaultMoveSpeed;
+        }
+    }
+
+    private void ApplyDownwardMovement()
+    {
+        if (rigidBody != null)
+        {
+            rigidBody.linearVelocity = Vector2.down * speed;
+        }
+        else
+        {
+            transform.position += (Vector3)(Vector2.down * speed * Time.deltaTime);
         }
     }
 
