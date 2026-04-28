@@ -44,6 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5246c3fc275c9b24991ffce965ae4bf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBulletManager
-  bulletPrefab: {fileID: 0}
-  fireInterval: 2
-  bulletSpread: 0.3
+  bulletPrefab: {fileID: 7329556616882938517, guid: 920c19032f9352349b285cc746ea9461, type: 3}
+  fireInterval: 1.5
+  shooterTag: EnemyC
