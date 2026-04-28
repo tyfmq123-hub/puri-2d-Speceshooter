@@ -1,36 +1,23 @@
 using UnityEngine;
-using System.Collections.Generic;
+using System;
 
 public class PlayerBulletManager : MonoBehaviour
 {
     public static PlayerBulletManager Instance;
 
     public GameObject bulletPrefab;
-    public int poolSize = 20;
 
-    private Queue<GameObject> pool = new Queue<GameObject>();
+    // 대리자 - 총알 발사 시 호출
+    public Action<Vector2> OnBulletFired;
 
     void Awake()
     {
         Instance = this;
-        for (int i = 0; i < poolSize; i++)
-        {
-            GameObject obj = Instantiate(bulletPrefab);
-            obj.SetActive(false);
-            pool.Enqueue(obj);
-        }
     }
 
-    public void SpawnBullet(Vector2 position)
+    public void Fire(Vector2 position)
     {
-        GameObject bullet = pool.Count > 0 ? pool.Dequeue() : Instantiate(bulletPrefab);
-        bullet.transform.position = position;
-        bullet.SetActive(true);
-    }
-
-    public void ReturnToPool(GameObject bullet)
-    {
-        bullet.SetActive(false);
-        pool.Enqueue(bullet);
+        Instantiate(bulletPrefab, position, Quaternion.identity);
+        OnBulletFired?.Invoke(position);
     }
 }

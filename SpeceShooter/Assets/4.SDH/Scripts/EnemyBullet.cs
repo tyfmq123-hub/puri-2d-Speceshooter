@@ -8,6 +8,10 @@ public class EnemyBullet : MonoBehaviour
     void Update()
     {
         transform.Translate(Vector2.down * speed * Time.deltaTime);
+
+        Vector3 viewPos = Camera.main.WorldToViewportPoint(transform.position);
+        if (viewPos.y < 0f)
+            Destroy(gameObject);
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -15,11 +19,7 @@ public class EnemyBullet : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             ImpactBulletManager.Instance.SpawnImpact(transform.position);
-            EnemyBulletManager.Instance.ReturnToPool(gameObject);
-        }
-        else if (other.CompareTag("Border"))
-        {
-            EnemyBulletManager.Instance.ReturnToPool(gameObject);
+            Destroy(gameObject);
         }
     }
 }
