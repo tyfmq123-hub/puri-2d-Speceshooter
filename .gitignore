@@ -104,3 +104,13 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Unity project is stored in a subdirectory
+/SpeceShooter/[Ll]ibrary/
+/SpeceShooter/[Tt]emp/
+/SpeceShooter/[Oo]bj/
+/SpeceShooter/[Bb]uild/
+/SpeceShooter/[Bb]uilds/
+/SpeceShooter/[Ll]ogs/
+/SpeceShooter/[Uu]ser[Ss]ettings/
+/SpeceShooter/.vs/
