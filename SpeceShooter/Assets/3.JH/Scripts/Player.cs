@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
         Idle,
         Move,
         Attack,
+        Hit,
         Dead
     }
     public int life = 3; // 한대 맞으면 1씩 줄음
@@ -30,6 +31,9 @@ public class Player : MonoBehaviour
     [Header("Follower")]
     [SerializeField] private Follower followerPrefab;
     [SerializeField] private Transform followerRoot;
+
+    [Header("Damage")]
+    [SerializeField] private float invincibilityDuration = 1f;
     
     [Header("Respawn")]
     [SerializeField] private float respawnDelay = 1.5f;
@@ -47,6 +51,9 @@ public class Player : MonoBehaviour
     private States previousState;
     private bool deathLogged;
     private bool deathHandled;
+    private Vector3 initialSpawnPosition;
+    private int pendingUiDamage;
+    private float hitStateEndTime;
     private Coroutine fireCoroutine;
     private readonly List<Follower> followers = new List<Follower>();
     private int syncedFollowerCount = -1;
@@ -70,6 +77,7 @@ public class Player : MonoBehaviour
         moveStateHash = Animator.StringToHash(MoveStateParam);
         previousLife = life;
         previousState = state;
+        initialSpawnPosition = transform.position;
         Debug.Log($"[Player] Life initialized: {life}", this);
         Debug.Log($"[Player] State initialized: {state}", this);
         positionHistory.Add(transform.position);
@@ -85,18 +93,64 @@ public class Player : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (state == States.Dead) return;
-        life = Mathf.Max(0, life - amount);
+        if (state == States.Dead || IsHitInvincible())
+        {
+            return;
+        }
+
+        int appliedDamage = Mathf.Max(1, amount);
+        life = Mathf.Max(0, life - appliedDamage);
+        pendingUiDamage += appliedDamage;
+
+        if (life > 0)
+        {
+            EnterHitState();
+        }
+    }
+
+    private bool IsHitInvincible()
+    {
+        return state == States.Hit && Time.time < hitStateEndTime;
+    }
+
+    private void EnterHitState()
+    {
+        state = States.Hit;
+        hitStateEndTime = Time.time + invincibilityDuration;
+
+        if (fireCoroutine != null)
+        {
+            StopCoroutine(fireCoroutine);
+            fireCoroutine = null;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (IsHitInvincible() && life < previousLife)
+        {
+            // External scripts may reduce life directly. Block damage during invincibility.
+            life = previousLife;
+        }
+
+        if (state == States.Hit && Time.time >= hitStateEndTime && life > 0)
+        {
+            state = moveInput == Vector2.zero ? States.Idle : States.Move;
+        }
+
         if (life != previousLife)
         {
+            int oldLife = previousLife;
+            int newLife = life;
             Debug.Log($"[Player] Life changed: {previousLife} -> {life}", this);
-            previousLife = life;
+            previousLife = newLife;
             deathLogged = false;
+
+            if (newLife < oldLife)
+            {
+                HandleLifeReduced(oldLife - newLife);
+            }
         }
 
         if (life <= 0)
@@ -120,6 +174,33 @@ public class Player : MonoBehaviour
         SyncFollowerCount();
         UpdateAnimation();
         LogStateChanged();
+    }
+
+    private void HandleLifeReduced(int damageAmount)
+    {
+        if (damageAmount <= 0)
+        {
+            return;
+        }
+
+        int uiDamage = Mathf.Min(damageAmount, pendingUiDamage);
+        if (UIManager.Instance != null && uiDamage > 0)
+        {
+            for (int i = 0; i < uiDamage; i++)
+            {
+                UIManager.Instance.DecreaseLife();
+            }
+        }
+        pendingUiDamage = Mathf.Max(0, pendingUiDamage - uiDamage);
+
+        if (life > 0)
+        {
+            transform.position = initialSpawnPosition;
+            moveInput = Vector2.zero;
+
+            positionHistory.Clear();
+            positionHistory.Add(transform.position);
+        }
     }
 
     private void OnDisable()
@@ -156,6 +237,12 @@ public class Player : MonoBehaviour
 
         deathHandled = true;
         RemoveAllFollowers();
+        hitStateEndTime = 0f;
+
+        if (gameObject.activeSelf)
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     private void LogStateChanged()
@@ -317,6 +404,16 @@ public class Player : MonoBehaviour
 
     private void HandleAttack()
     {
+        if (state == States.Hit)
+        {
+            if (fireCoroutine != null)
+            {
+                StopCoroutine(fireCoroutine);
+                fireCoroutine = null;
+            }
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (fireCoroutine != null) StopCoroutine(fireCoroutine);
@@ -360,11 +457,11 @@ public class Player : MonoBehaviour
 
     private void UpdateAnimation()
     {
-        if (moveInput == Vector2.zero && state != States.Attack)
+        if (moveInput == Vector2.zero && state != States.Attack && state != States.Hit)
         {
             state = States.Idle;
         }
-        else if (moveInput != Vector2.zero && state != States.Attack)
+        else if (moveInput != Vector2.zero && state != States.Attack && state != States.Hit)
         {
             state = States.Move;
         }
