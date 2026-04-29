@@ -43,6 +43,12 @@ public class Follower : MonoBehaviour
             return;
         }
 
+        if (player.state == Player.States.Dead)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         float dist = Mathf.Max(followDistance, 1.2f);
         Vector3 target = player.GetHistoryPosition(dist * (followerIndex + 1));
         transform.position = Vector3.MoveTowards(

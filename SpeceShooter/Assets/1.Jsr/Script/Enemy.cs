@@ -29,6 +29,9 @@ public class Enemy : MonoBehaviour
     [SerializeField] private GameObject enemyBulletPrefab;
     [SerializeField] private Transform firePoint;
     [SerializeField] private float fireInterval = 1.2f;
+    
+    [Header("Player Collision Damage")]
+    [SerializeField] private int collisionDamage = 1;
 
     [Header("Item Drop")]
     [SerializeField, Range(0f, 1f)] private float itemDropChance = 0.3f;
@@ -192,6 +195,13 @@ public class Enemy : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (collision.CompareTag("Player"))
+        {
+            DamagePlayer(collision.gameObject);
+            ReturnEnemyToPool();
+            return;
+        }
+
         if (collision.CompareTag("BorderBullet"))
         {
             ReturnEnemyToPool();
@@ -203,6 +213,49 @@ public class Enemy : MonoBehaviour
             {
                 OnHit(damage);
                 ReturnBulletToPool(collision.gameObject);
+            }
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (!collision.gameObject.CompareTag("Player"))
+        {
+            return;
+        }
+
+        DamagePlayer(collision.gameObject);
+        ReturnEnemyToPool();
+    }
+
+    private void DamagePlayer(GameObject playerObject)
+    {
+        if (playerObject == null)
+        {
+            return;
+        }
+
+        Player playerComp = playerObject.GetComponent<Player>();
+        if (playerComp == null)
+        {
+            return;
+        }
+
+        int appliedDamage = Mathf.Max(1, collisionDamage);
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.HandlePlayerHit(playerObject, playerComp.GetRespawnPosition(), playerComp.RespawnDelay, appliedDamage);
+        }
+        else if (ImpactBulletManager.Instance != null)
+        {
+            ImpactBulletManager.Instance.DamagePlayer(playerComp, appliedDamage);
+        }
+        else
+        {
+            playerComp.life = Mathf.Max(0, playerComp.life - appliedDamage);
+            if (playerComp.life <= 0)
+            {
+                Destroy(playerComp.gameObject);
             }
         }
     }
