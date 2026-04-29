@@ -1,8 +1,8 @@
 # puri-2d-Speceshooter
 
 
-신동혁 테스트 
-<<<<<<< HEAD
+
+전쇼릅 5:31
 
 
 
