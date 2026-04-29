@@ -175,6 +175,10 @@ public class Enemy : MonoBehaviour
 
         if (health <= 0)
         {
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.AddScoreByEnemyType(enemyType);
+            }
             TryDropItem();
             ReturnEnemyToPool();
         }
