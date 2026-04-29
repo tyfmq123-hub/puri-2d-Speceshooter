@@ -6,11 +6,9 @@ public class EnemyBulletManager : MonoBehaviour
 {
     public static EnemyBulletManager Instance;
 
-    public GameObject bulletPrefab;
     public float fireInterval = 1.5f;
     [SerializeField] private string shooterTag = "EnemyC";
 
-    // 대리자 - 적 총알 발사 시 호출
     public Action OnEnemyFired;
 
     void Awake()
@@ -32,6 +30,9 @@ public class EnemyBulletManager : MonoBehaviour
             GameObject playerObj = GameObject.FindWithTag("Player");
             if (playerObj == null) continue;
 
+            // 1.5초 후 위치 한 번 감지
+            Vector2 playerPos = playerObj.transform.position;
+
             GameObject[] enemies;
             try
             {
@@ -42,9 +43,17 @@ public class EnemyBulletManager : MonoBehaviour
                 continue;
             }
 
+            // 1발
+            foreach (GameObject enemy in enemies)
+                FireBullet(enemy.transform, playerPos);
+
+            yield return new WaitForSeconds(0.2f);
+
+            // 2발 (같은 감지 위치로)
             foreach (GameObject enemy in enemies)
             {
-                FireBullet(enemy.transform, playerObj.transform.position);
+                if (enemy != null)
+                    FireBullet(enemy.transform, playerPos);
             }
 
             OnEnemyFired?.Invoke();
@@ -53,15 +62,20 @@ public class EnemyBulletManager : MonoBehaviour
 
     private void FireBullet(Transform enemyTransform, Vector2 playerPos)
     {
-        if (bulletPrefab == null || enemyTransform == null) return;
+        if (PoolManager.Instance == null || enemyTransform == null) return;
+
+        GameObject bullet = PoolManager.Instance.GetEnemyBullet();
+        if (bullet == null) return;
 
         Vector2 origin = GetFireOrigin(enemyTransform);
         Vector2 direction = (playerPos - origin).normalized;
 
-        GameObject bullet = Instantiate(bulletPrefab, origin, Quaternion.identity);
+        bullet.transform.position = origin;
         EnemyBullet eb = bullet.GetComponent<EnemyBullet>();
         if (eb != null)
             eb.SetDirection(direction);
+
+        bullet.SetActive(true);
     }
 
     private Vector2 GetFireOrigin(Transform enemyTransform)

@@ -14,7 +14,7 @@ public class PlayerBullet : MonoBehaviour
 
         Vector3 viewPos = mainCamera.WorldToViewportPoint(transform.position);
         if (viewPos.y > 1f)
-            Destroy(gameObject);
+            ReturnToPool();
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -22,7 +22,15 @@ public class PlayerBullet : MonoBehaviour
         if (other.CompareTag("Enemy"))
         {
             ImpactBulletManager.Instance.DamageEnemy(other, damage);
-            Destroy(gameObject);
+            ReturnToPool();
         }
+    }
+
+    void ReturnToPool()
+    {
+        if (PoolManager.Instance != null)
+            PoolManager.Instance.ReturnToPool(gameObject);
+        else
+            Destroy(gameObject);
     }
 }

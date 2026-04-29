@@ -5,7 +5,6 @@ public class EnemyBullet : MonoBehaviour
     public float speed = 6f;
     public int damage = 1;
 
-    // 발사 시점에 고정된 방향
     private Vector2 direction;
 
     public void SetDirection(Vector2 dir)
@@ -22,7 +21,7 @@ public class EnemyBullet : MonoBehaviour
 
         Vector3 viewPos = mainCamera.WorldToViewportPoint(transform.position);
         if (viewPos.y < 0f || viewPos.x < -0.1f || viewPos.x > 1.1f)
-            Destroy(gameObject);
+            ReturnToPool();
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -40,7 +39,15 @@ public class EnemyBullet : MonoBehaviour
                     Destroy(playerComp.gameObject);
             }
 
-            Destroy(gameObject);
+            ReturnToPool();
         }
+    }
+
+    void ReturnToPool()
+    {
+        if (PoolManager.Instance != null)
+            PoolManager.Instance.ReturnToPool(gameObject);
+        else
+            Destroy(gameObject);
     }
 }
