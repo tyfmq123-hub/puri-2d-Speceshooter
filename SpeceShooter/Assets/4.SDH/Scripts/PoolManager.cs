@@ -5,9 +5,17 @@ public class PoolManager : MonoBehaviour
 {
     public static PoolManager Instance;
 
-    [Header("Player Bullet")]
-    public GameObject playerBulletPrefab;
-    public int playerBulletCount = 30;
+    [Header("Player Bullet 01 (단일)")]
+    public GameObject playerBullet01Prefab;
+    public int playerBullet01Count = 30;
+
+    [Header("Player Bullet 02 (L/M/R)")]
+    public GameObject playerBullet02Prefab;
+    public int playerBullet02Count = 15;
+
+    [Header("Player Bullet 03 (L/M/R)")]
+    public GameObject playerBullet03Prefab;
+    public int playerBullet03Count = 15;
 
     [Header("Enemy Bullet")]
     public GameObject enemyBulletPrefab;
@@ -21,7 +29,9 @@ public class PoolManager : MonoBehaviour
     public GameObject enemyCPrefab;
     public int enemyCCount = 10;
 
-    private List<GameObject> playerBulletPool = new List<GameObject>();
+    private List<GameObject> playerBullet01Pool = new List<GameObject>();
+    private List<GameObject> playerBullet02Pool = new List<GameObject>();
+    private List<GameObject> playerBullet03Pool = new List<GameObject>();
     private List<GameObject> enemyBulletPool = new List<GameObject>();
     private List<GameObject> enemyAPool = new List<GameObject>();
     private List<GameObject> enemyBPool = new List<GameObject>();
@@ -30,7 +40,9 @@ public class PoolManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        InitPool(playerBulletPool, playerBulletPrefab, playerBulletCount);
+        InitPool(playerBullet01Pool, playerBullet01Prefab, playerBullet01Count);
+        InitPool(playerBullet02Pool, playerBullet02Prefab, playerBullet02Count);
+        InitPool(playerBullet03Pool, playerBullet03Prefab, playerBullet03Count);
         InitPool(enemyBulletPool, enemyBulletPrefab, enemyBulletCount);
         InitEnemyPool(enemyAPool, enemyAPrefab, enemyACount);
         InitEnemyPool(enemyBPool, enemyBPrefab, enemyBCount);
@@ -77,9 +89,11 @@ public class PoolManager : MonoBehaviour
         go.transform.SetParent(transform);
     }
 
-    public GameObject GetPlayerBullet() => GetFromPool(playerBulletPool);
-    public GameObject GetEnemyBullet() => GetFromPool(enemyBulletPool);
-    public GameObject GetEnemyA() => GetFromPool(enemyAPool);
-    public GameObject GetEnemyB() => GetFromPool(enemyBPool);
-    public GameObject GetEnemyC() => GetFromPool(enemyCPool);
+    public GameObject GetPlayerBullet01() => GetFromPool(playerBullet01Pool);
+    public GameObject GetPlayerBullet02() => GetFromPool(playerBullet02Pool);
+    public GameObject GetPlayerBullet03() => GetFromPool(playerBullet03Pool);
+    public GameObject GetEnemyBullet()    => GetFromPool(enemyBulletPool);
+    public GameObject GetEnemyA()         => GetFromPool(enemyAPool);
+    public GameObject GetEnemyB()         => GetFromPool(enemyBPool);
+    public GameObject GetEnemyC()         => GetFromPool(enemyCPool);
 }

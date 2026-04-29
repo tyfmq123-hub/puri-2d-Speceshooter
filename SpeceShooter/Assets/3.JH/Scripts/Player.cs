@@ -260,15 +260,9 @@ public class Player : MonoBehaviour
         Vector3 spawnPosition = firePoint != null ? firePoint.position : transform.position;
         Quaternion spawnRotation = firePoint != null ? firePoint.rotation : transform.rotation;
 
-        if (PoolManager.Instance != null)
+        if (PlayerBulletManager.Instance != null)
         {
-            GameObject bullet = PoolManager.Instance.GetPlayerBullet();
-            if (bullet != null)
-            {
-                bullet.transform.position = spawnPosition;
-                bullet.transform.rotation = spawnRotation;
-                bullet.SetActive(true);
-            }
+            PlayerBulletManager.Instance.Fire((Vector2)spawnPosition, power);
         }
         else if (bulletPrefab != null)
         {
