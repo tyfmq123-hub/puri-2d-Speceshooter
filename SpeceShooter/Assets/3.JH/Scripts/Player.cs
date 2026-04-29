@@ -45,6 +45,7 @@ public class Player : MonoBehaviour
     private int previousLife;
     private States previousState;
     private bool deathLogged;
+    private bool deathHandled;
     private readonly List<Follower> followers = new List<Follower>();
     private int syncedFollowerCount = -1;
     private readonly List<Vector3> positionHistory = new List<Vector3>();
@@ -92,15 +93,7 @@ public class Player : MonoBehaviour
 
         if (life <= 0)
         {
-            if (!deathLogged)
-            {
-                Debug.Log("[Player] Life reached 0. State changed to Dead.", this);
-                deathLogged = true;
-            }
-
-            state = States.Dead;
-            LogStateChanged();
-            RemoveAllFollowers();
+            HandleDeath();
             return;
         }
 
@@ -113,6 +106,42 @@ public class Player : MonoBehaviour
         SyncFollowerCount();
         UpdateAnimation();
         LogStateChanged();
+    }
+
+    private void OnDisable()
+    {
+        if (life <= 0)
+        {
+            HandleDeath();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (life <= 0)
+        {
+            HandleDeath();
+        }
+    }
+
+    private void HandleDeath()
+    {
+        if (!deathLogged)
+        {
+            Debug.Log("[Player] Life reached 0. State changed to Dead.", this);
+            deathLogged = true;
+        }
+
+        state = States.Dead;
+        LogStateChanged();
+
+        if (deathHandled)
+        {
+            return;
+        }
+
+        deathHandled = true;
+        RemoveAllFollowers();
     }
 
     private void LogStateChanged()
