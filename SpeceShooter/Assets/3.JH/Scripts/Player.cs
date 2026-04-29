@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Player : MonoBehaviour
 {
@@ -23,6 +24,10 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Transform firePoint;
 
+    [Header("Follower")]
+    [SerializeField] private Follower followerPrefab;
+    [SerializeField] private Transform followerRoot;
+
     private const string MoveStateParam = "State";
     
     
@@ -31,6 +36,9 @@ public class Player : MonoBehaviour
     private Vector2 moveInput;
     private float lastAttackTime;
     private int moveStateHash;
+    private readonly List<Follower> followers = new List<Follower>();
+    private int syncedFollowerCount = -1;
+    private readonly List<Vector3> positionHistory = new List<Vector3>();
 
     private void Awake()
     {
@@ -48,6 +56,8 @@ public class Player : MonoBehaviour
         animator = GetComponent<Animator>();
         lastAttackTime = -attackCooldown;
         moveStateHash = Animator.StringToHash(MoveStateParam);
+        positionHistory.Add(transform.position);
+        SyncFollowerCount();
     }
 
     // Update is called once per frame
@@ -57,8 +67,98 @@ public class Player : MonoBehaviour
         //방향키로 이동 대각선 포함
         //애니메이션 구현 Player_Idle,Player_Left,Player_Right
         HandleMovement();
+        RecordPositionHistory();
         HandleAttack();
+        SyncFollowerCount();
         UpdateAnimation();
+    }
+
+    private void SyncFollowerCount()
+    {
+        int desiredCount = Mathf.Clamp(power, 0, 3);
+
+        if (followerPrefab == null)
+        {
+            syncedFollowerCount = desiredCount;
+            return;
+        }
+
+        followers.RemoveAll(follower => follower == null);
+
+        Transform root = followerRoot != null ? followerRoot : null;
+
+        while (followers.Count < desiredCount)
+        {
+            int spawnIndex = followers.Count;
+            Vector3 spawnPos = transform.position + Vector3.down * 1.2f * (spawnIndex + 1);
+            Follower follower = Instantiate(followerPrefab, spawnPos, Quaternion.identity, root);
+            followers.Add(follower);
+        }
+
+        while (followers.Count > desiredCount)
+        {
+            int lastIndex = followers.Count - 1;
+            Follower follower = followers[lastIndex];
+            followers.RemoveAt(lastIndex);
+
+            if (follower != null)
+            {
+                Destroy(follower.gameObject);
+            }
+        }
+
+        for (int i = 0; i < followers.Count; i++)
+        {
+            if (followers[i] == null)
+            {
+                continue;
+            }
+
+            followers[i].SetFollowerIndex(i);
+        }
+
+        syncedFollowerCount = desiredCount;
+    }
+
+    private void RecordPositionHistory()
+    {
+        if (positionHistory.Count == 0 || Vector3.Distance(transform.position, positionHistory[0]) > 0.05f)
+        {
+            positionHistory.Insert(0, transform.position);
+
+            float maxLength = 3 * 1.5f + 5f;
+            float accumulated = 0f;
+            for (int i = 1; i < positionHistory.Count - 1; i++)
+            {
+                accumulated += Vector3.Distance(positionHistory[i - 1], positionHistory[i]);
+                if (accumulated > maxLength)
+                {
+                    positionHistory.RemoveRange(i, positionHistory.Count - i);
+                    break;
+                }
+            }
+        }
+    }
+
+    public Vector3 GetHistoryPosition(float distanceFromHead)
+    {
+        if (positionHistory.Count == 0)
+        {
+            return transform.position;
+        }
+
+        float accumulated = 0f;
+        for (int i = 0; i < positionHistory.Count - 1; i++)
+        {
+            float segLen = Vector3.Distance(positionHistory[i], positionHistory[i + 1]);
+            if (accumulated + segLen >= distanceFromHead)
+            {
+                float t = (distanceFromHead - accumulated) / segLen;
+                return Vector3.Lerp(positionHistory[i], positionHistory[i + 1], t);
+            }
+            accumulated += segLen;
+        }
+        return positionHistory[positionHistory.Count - 1];
     }
 
     private void HandleMovement()
@@ -127,6 +227,14 @@ public class Player : MonoBehaviour
         Quaternion spawnRotation = firePoint != null ? firePoint.rotation : transform.rotation;
 
         Instantiate(bulletPrefab, spawnPosition, spawnRotation);
+
+        foreach (var follower in followers)
+        {
+            if (follower != null)
+            {
+                follower.Fire(bulletPrefab, spawnRotation);
+            }
+        }
     }
 
     private void UpdateAnimation()

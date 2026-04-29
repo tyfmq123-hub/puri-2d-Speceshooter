@@ -163,12 +163,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Player
   life: 3
   attackPoint: 0
-  power: 0
+  power: 3
   boomSlot: 0
   moveSpeed: 5
   attackCooldown: 0.15
   bulletPrefab: {fileID: 7322430314308258510, guid: f8a434a14a404d7469795be0039e165d, type: 3}
   firePoint: {fileID: 1332626579370696378}
+  followerPrefab: {fileID: 0}
+  followerRoot: {fileID: 0}
 --- !u!50 &7104647957042624525
 Rigidbody2D:
   serializedVersion: 5
