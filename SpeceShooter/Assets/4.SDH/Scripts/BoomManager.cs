@@ -19,7 +19,11 @@ public class BoomManager : MonoBehaviour
         Instance = this;
     }
 
-    void Update() { }
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Z))
+            UseBoom();
+    }
 
     public void UseBoom()
     {
@@ -29,30 +33,33 @@ public class BoomManager : MonoBehaviour
 
     private IEnumerator BoomRoutine()
     {
-        // 애니메이션 (없어도 실행)
         if (boomAnimationPrefab != null)
         {
             Vector3 pos = Player.Instance != null ? Player.Instance.transform.position : Vector3.zero;
             Destroy(Instantiate(boomAnimationPrefab, pos, Quaternion.identity), 2f);
         }
 
-        // 씬의 모든 적 처리 - OnHit(9999)으로 일반 사망 플로우 실행 (아이템 드랍 포함)
-        foreach (var enemy in FindObjectsByType<Enemy>(FindObjectsSortMode.None))
+        // 2초 동안 0.1초마다 씬 전체 적·총알 제거 (도중에 스폰된 적도 처리)
+        float elapsed = 0f;
+        while (elapsed < 2f)
         {
-            if (enemy == null || !enemy.gameObject.activeInHierarchy) continue;
-            enemy.gameObject.SendMessage("OnHit", 9999, SendMessageOptions.DontRequireReceiver);
-        }
+            foreach (var enemy in FindObjectsByType<Enemy>(FindObjectsSortMode.None))
+            {
+                if (enemy == null || !enemy.gameObject.activeInHierarchy) continue;
+                enemy.gameObject.SendMessage("OnHit", 9999, SendMessageOptions.DontRequireReceiver);
+            }
 
-        // 씬의 모든 적 총알 제거
-        foreach (var bullet in FindObjectsByType<EnemyBullet>(FindObjectsSortMode.None))
-        {
-            if (bullet == null || !bullet.gameObject.activeInHierarchy) continue;
-            if (PoolManager.Instance != null)
-                PoolManager.Instance.ReturnToPool(bullet.gameObject);
-            else
-                bullet.gameObject.SetActive(false);
-        }
+            foreach (var bullet in FindObjectsByType<EnemyBullet>(FindObjectsSortMode.None))
+            {
+                if (bullet == null || !bullet.gameObject.activeInHierarchy) continue;
+                if (PoolManager.Instance != null)
+                    PoolManager.Instance.ReturnToPool(bullet.gameObject);
+                else
+                    bullet.gameObject.SetActive(false);
+            }
 
-        yield return new WaitForSeconds(2f);
+            elapsed += 0.1f;
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 }
