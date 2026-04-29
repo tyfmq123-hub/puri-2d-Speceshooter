@@ -135,29 +135,42 @@ public class CreateEnemyManager : MonoBehaviour
         Vector2 moveDir = Vector2.down;
         bool alignRotation = false;
         float extraRotation = 0f;
+        bool isDiagonalPoint = IsRightDiagonalSpawnPoint(spawnPoint.name) || IsLeftDiagonalSpawnPoint(spawnPoint.name);
+        Transform endPoint = spawnPoint.Find("EndPoint");
 
+        if (!isDiagonalPoint)
+        {
+            // Spawn points 1~4: always move down without rotation.
+            moveDir = Vector2.down;
+            alignRotation = false;
+            enemyObj.transform.rotation = Quaternion.identity;
+            enemy.SetMoveDirection(moveDir, alignRotation, extraRotation);
+            return;
+        }
+
+        // Spawn points 5~8: move toward EndPoint and look at that direction.
+        if (endPoint != null)
+        {
+            Vector2 towardEndPoint = (Vector2)endPoint.position - (Vector2)spawnPoint.position;
+            if (towardEndPoint.sqrMagnitude > 0.0001f)
+            {
+                moveDir = towardEndPoint.normalized;
+                alignRotation = true;
+                enemy.SetMoveDirection(moveDir, alignRotation, extraRotation);
+                return;
+            }
+        }
+
+        // Fallback when EndPoint is missing on 5~8.
         if (IsRightDiagonalSpawnPoint(spawnPoint.name))
         {
-            // Spawn points 5/6: move toward right-down and rotate to that direction.
             moveDir = new Vector2(0.6f, -1f).normalized;
             alignRotation = true;
-            extraRotation = 180f;
         }
         else if (IsLeftDiagonalSpawnPoint(spawnPoint.name))
         {
-            // Spawn points 7/8: move toward left-down and rotate to that direction.
             moveDir = new Vector2(-0.6f, -1f).normalized;
             alignRotation = true;
-            extraRotation = 180f;
-        }
-        else
-        {
-            Transform endPoint = spawnPoint.Find("EndPoint");
-            if (endPoint != null)
-            {
-                moveDir = ((Vector2)endPoint.position - (Vector2)spawnPoint.position).normalized;
-                alignRotation = true;
-            }
         }
 
         enemy.SetMoveDirection(moveDir, alignRotation, extraRotation);

@@ -176,17 +176,18 @@ MonoBehaviour:
   - {fileID: 4326287474489854147, guid: 138040323294fd440a3a823e5d70ad01, type: 3}
   - {fileID: 4326287474489854147, guid: 138040323294fd440a3a823e5d70ad01, type: 3}
   useHealthByType: 0
-  useSpeedByType: 1
+  useSpeedByType: 0
   defaultMoveSpeed: 3
   enemyASpeed: 2
-  enemyBSpeed: 2.5
-  enemyCSpeed: 1.6
+  enemyBSpeed: 5
+  enemyCSpeed: 1.5
   rotateToMoveDirection: 1
   rotationOffset: -90
   invertFacingForEnemyB: 1
   enemyBulletPrefab: {fileID: 0}
   firePoint: {fileID: 0}
   fireInterval: 1.2
+  collisionDamage: 1
   itemDropChance: 0.3
   boomItemPrefab: {fileID: 257619265856148596, guid: 23cd9707d8990d44fa5aae31e67a8392, type: 3}
   coinItemPrefab: {fileID: 1555755017545748983, guid: 6f13d8847cb5b4648853c01cb3facb74, type: 3}
