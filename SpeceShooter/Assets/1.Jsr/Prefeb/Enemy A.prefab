@@ -176,7 +176,14 @@ MonoBehaviour:
   - {fileID: 4326287474489854147, guid: 138040323294fd440a3a823e5d70ad01, type: 3}
   - {fileID: 4326287474489854147, guid: 138040323294fd440a3a823e5d70ad01, type: 3}
   useHealthByType: 0
-  defaultMoveSpeed: 2
+  useSpeedByType: 1
+  defaultMoveSpeed: 3
+  enemyASpeed: 2
+  enemyBSpeed: 2.5
+  enemyCSpeed: 1.6
+  rotateToMoveDirection: 1
+  rotationOffset: -90
+  invertFacingForEnemyB: 1
   enemyBulletPrefab: {fileID: 0}
   firePoint: {fileID: 0}
   fireInterval: 1.2

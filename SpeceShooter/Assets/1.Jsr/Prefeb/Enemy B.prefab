@@ -175,7 +175,14 @@ MonoBehaviour:
   sprites:
   - {fileID: -7844560889915226194, guid: 138040323294fd440a3a823e5d70ad01, type: 3}
   useHealthByType: 0
+  useSpeedByType: 1
   defaultMoveSpeed: 2
+  enemyASpeed: 2
+  enemyBSpeed: 5
+  enemyCSpeed: 1.5
+  rotateToMoveDirection: 1
+  rotationOffset: -90
+  invertFacingForEnemyB: 1
   enemyBulletPrefab: {fileID: 0}
   firePoint: {fileID: 0}
   fireInterval: 1.2

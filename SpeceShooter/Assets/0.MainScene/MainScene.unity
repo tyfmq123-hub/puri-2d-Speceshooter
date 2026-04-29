@@ -137,9 +137,29 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 249940019732063567, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 570723553937666403, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -8
+      objectReference: {fileID: 0}
+    - target: {fileID: 770431236007176770, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -8
+      objectReference: {fileID: 0}
     - target: {fileID: 1845332883152825051, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
       propertyPath: m_Name
       value: CreateEnemeyManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 2392819072438635883, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4316269125547089402, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3
       objectReference: {fileID: 0}
     - target: {fileID: 5724356028663016468, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
       propertyPath: m_LocalPosition.x
@@ -180,6 +200,18 @@ PrefabInstance:
     - target: {fileID: 5724356028663016468, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5860818090021855069, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5860818090021855069, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6502785708447647531, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7141325947059155212, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
       propertyPath: enemyAPrefab
@@ -233,6 +265,10 @@ PrefabInstance:
       propertyPath: 'spawnPoints.Array.data[8]'
       value: 
       objectReference: {fileID: 843692285}
+    - target: {fileID: 7258913700624054576, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
