@@ -234,15 +234,23 @@ public class Player : MonoBehaviour
 
     private void SpawnBullet()
     {
-        if (bulletPrefab == null)
-        {
-            return;
-        }
-
         Vector3 spawnPosition = firePoint != null ? firePoint.position : transform.position;
         Quaternion spawnRotation = firePoint != null ? firePoint.rotation : transform.rotation;
 
-        Instantiate(bulletPrefab, spawnPosition, spawnRotation);
+        if (PoolManager.Instance != null)
+        {
+            GameObject bullet = PoolManager.Instance.GetPlayerBullet();
+            if (bullet != null)
+            {
+                bullet.transform.position = spawnPosition;
+                bullet.transform.rotation = spawnRotation;
+                bullet.SetActive(true);
+            }
+        }
+        else if (bulletPrefab != null)
+        {
+            Instantiate(bulletPrefab, spawnPosition, spawnRotation);
+        }
 
         foreach (var follower in followers)
         {

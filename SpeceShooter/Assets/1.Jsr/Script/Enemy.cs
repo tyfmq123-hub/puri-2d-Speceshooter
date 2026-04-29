@@ -250,22 +250,27 @@ public class Enemy : MonoBehaviour
         // EnemyBulletManager가 있으면 발사 위임
         if (EnemyBulletManager.Instance != null) return;
 
-        if (enemyBulletPrefab == null) return;
         if (Time.time - lastFireTime < fireInterval) return;
 
-        Vector3 spawnPosition = firePoint != null ? firePoint.position : transform.position;
-        Quaternion spawnRotation = firePoint != null ? firePoint.rotation : Quaternion.identity;
+        Vector2 spawnPosition = firePoint != null ? (Vector2)firePoint.position : (Vector2)transform.position;
 
-        GameObject bulletObj = Instantiate(enemyBulletPrefab, spawnPosition, spawnRotation);
+        GameObject bulletObj = PoolManager.Instance != null
+            ? PoolManager.Instance.GetEnemyBullet()
+            : (enemyBulletPrefab != null ? Instantiate(enemyBulletPrefab, spawnPosition, Quaternion.identity) : null);
+
+        if (bulletObj == null) return;
+
+        bulletObj.transform.position = spawnPosition;
         EnemyBullet eb = bulletObj.GetComponent<EnemyBullet>();
         if (eb != null)
         {
             GameObject playerObj = GameObject.FindWithTag("Player");
             Vector2 dir = playerObj != null
-                ? ((Vector2)playerObj.transform.position - (Vector2)spawnPosition).normalized
+                ? ((Vector2)playerObj.transform.position - spawnPosition).normalized
                 : Vector2.down;
             eb.SetDirection(dir);
         }
+        bulletObj.SetActive(true);
         lastFireTime = Time.time;
     }
 
