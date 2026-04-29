@@ -283,6 +283,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2575772064965999470, guid: 6da2146613365824a92a907f32265453, type: 3}
+      propertyPath: power
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2575772064965999470, guid: 6da2146613365824a92a907f32265453, type: 3}
       propertyPath: followerRoot
       value: 
       objectReference: {fileID: 6789475228103689475, guid: 6da2146613365824a92a907f32265453, type: 3}
@@ -333,6 +337,10 @@ PrefabInstance:
     - target: {fileID: 8192318464856842873, guid: 6da2146613365824a92a907f32265453, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 8192318464856842873, guid: 6da2146613365824a92a907f32265453, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -820,8 +828,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02640ad9deaf9e1479de9d28b9dce92c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoolManager
-  playerBulletPrefab: {fileID: 7322430314308258510, guid: f8a434a14a404d7469795be0039e165d, type: 3}
-  playerBulletCount: 30
+  playerBullet01Prefab: {fileID: 7322430314308258510, guid: f8a434a14a404d7469795be0039e165d, type: 3}
+  playerBullet01Count: 30
+  playerBullet02Prefab: {fileID: 6384013492361492286, guid: 899984cd7bcff39458a28b4a61cfa31d, type: 3}
+  playerBullet02Count: 15
+  playerBullet03Prefab: {fileID: 432561248955336210, guid: eee9a53611e6c1542ba3dbbe813098e8, type: 3}
+  playerBullet03Count: 15
   enemyBulletPrefab: {fileID: 7329556616882938517, guid: 920c19032f9352349b285cc746ea9461, type: 3}
   enemyBulletCount: 30
   enemyAPrefab: {fileID: 5357363269009084651, guid: e4fde29c370a9fb4ead2f99d5b0d5500, type: 3}
@@ -2666,7 +2678,7 @@ GameObject:
   m_Component:
   - component: {fileID: 367152452096364657}
   m_Layer: 0
-  m_Name: Ui Canvas
+  m_Name: UI Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

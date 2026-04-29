@@ -116,6 +116,7 @@ public class Player : MonoBehaviour
         HandleMovement();
         RecordPositionHistory();
         HandleAttack();
+        HandleBoom();
         SyncFollowerCount();
         UpdateAnimation();
         LogStateChanged();
@@ -306,6 +307,12 @@ public class Player : MonoBehaviour
         Vector2 targetInput = new Vector2(horizontal, vertical).normalized;
         moveInput = Vector2.Lerp(moveInput, targetInput, moveInputSmoothing);
         transform.position += (Vector3)(moveInput * moveSpeed * Time.deltaTime);
+    }
+
+    private void HandleBoom()
+    {
+        if (Input.GetKeyDown(KeyCode.Z))
+            BoomManager.Instance?.UseBoom();
     }
 
     private void HandleAttack()
