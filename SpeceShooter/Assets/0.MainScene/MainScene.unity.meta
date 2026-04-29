@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: 1eaca4f2eea1b6c458e5236804252d1c
+=======
+guid: 058d5ccd4c2c9764e8e8e297cdb47c65
+>>>>>>> parent of d92966c (Update scene files and remove obsolete 4.SDH assets.)
 DefaultImporter:
   externalObjects: {}
   userData: 
