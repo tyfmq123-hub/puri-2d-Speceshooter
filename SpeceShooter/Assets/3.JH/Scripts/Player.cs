@@ -9,7 +9,8 @@ public class Player : MonoBehaviour
     {
         Idle,
         Move,
-        Attack
+        Attack,
+        Dead
     }
     public int life = 3; // 한대 맞으면 1씩 줄음
     public int attackPoint;
@@ -18,6 +19,7 @@ public class Player : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float moveInputSmoothing = 0.15f;
 
     [Header("Attack")]
     [SerializeField] private float attackCooldown = 0.15f;
@@ -35,7 +37,7 @@ public class Player : MonoBehaviour
     private const string MoveStateParam = "State";
     
     
-    States state = States.Idle;
+    public States state = States.Idle;
     private Animator animator;
     private Vector2 moveInput;
     private float lastAttackTime;
@@ -74,6 +76,13 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (life <= 0)
+        {
+            state = States.Dead;
+            RemoveAllFollowers();
+            return;
+        }
+
         //움직임 기능
         //방향키로 이동 대각선 포함
         //애니메이션 구현 Player_Idle,Player_Left,Player_Right
@@ -134,6 +143,19 @@ public class Player : MonoBehaviour
         }
 
         syncedFollowerCount = desiredCount;
+    }
+
+    private void RemoveAllFollowers()
+    {
+        foreach (var follower in followers)
+        {
+            if (follower != null)
+            {
+                Destroy(follower.gameObject);
+            }
+        }
+        followers.Clear();
+        syncedFollowerCount = 0;
     }
 
     private void RecordPositionHistory()
@@ -206,7 +228,8 @@ public class Player : MonoBehaviour
             
         }
 
-        moveInput = new Vector2(horizontal, vertical).normalized;
+        Vector2 targetInput = new Vector2(horizontal, vertical).normalized;
+        moveInput = Vector2.Lerp(moveInput, targetInput, moveInputSmoothing);
         transform.position += (Vector3)(moveInput * moveSpeed * Time.deltaTime);
     }
 
