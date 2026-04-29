@@ -128,12 +128,6 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (IsHitInvincible() && life < previousLife)
-        {
-            // External scripts may reduce life directly. Block damage during invincibility.
-            life = previousLife;
-        }
-
         if (state == States.Hit && Time.time >= hitStateEndTime && life > 0)
         {
             state = moveInput == Vector2.zero ? States.Idle : States.Move;

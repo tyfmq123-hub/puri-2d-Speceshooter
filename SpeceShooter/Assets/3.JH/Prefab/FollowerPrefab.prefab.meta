@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+<<<<<<< HEAD
+guid: 24324f79f36c34740a7e66469ab6849e
+PrefabImporter:
+=======
+<<<<<<<< HEAD:SpeceShooter/Assets/3.JH/TestScene/TestScene.unity.meta
+guid: 1eaca4f2eea1b6c458e5236804252d1c
+DefaultImporter:
+========
+guid: 3d9da49451cea7d4599c0f013ef99749
+PrefabImporter:
+>>>>>>>> e3c6f7c (Sync all current local changes across scenes, prefabs, scripts, and gitignore.):SpeceShooter/Assets/4.SDH/Prefabs/FollowerPrefab.prefab.meta
+>>>>>>> e3c6f7c (Sync all current local changes across scenes, prefabs, scripts, and gitignore.)
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
