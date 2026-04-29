@@ -171,15 +171,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   enemyType: 0
-  speed: 0
+  speed: 2
   health: 150
   sprites:
   - {fileID: -8421458170528590454, guid: 138040323294fd440a3a823e5d70ad01, type: 3}
   - {fileID: 3714015224569861163, guid: 138040323294fd440a3a823e5d70ad01, type: 3}
   useHealthByType: 0
+  defaultMoveSpeed: 2
   enemyBulletPrefab: {fileID: 7329556616882938517, guid: 920c19032f9352349b285cc746ea9461, type: 3}
   firePoint: {fileID: 4561764380088264194}
   fireInterval: 1.2
+  itemDropChance: 0.3
+  boomItemPrefab: {fileID: 257619265856148596, guid: 23cd9707d8990d44fa5aae31e67a8392, type: 3}
+  coinItemPrefab: {fileID: 1555755017545748983, guid: 6f13d8847cb5b4648853c01cb3facb74, type: 3}
+  powerItemPrefab: {fileID: 6626964790982052417, guid: ec41a29bc1dc21b41bdc8af5a69c4f82, type: 3}
 --- !u!1 &7426187790991721629
 GameObject:
   m_ObjectHideFlags: 0

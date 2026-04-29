@@ -22,6 +22,12 @@ public class Enemy : MonoBehaviour
     [SerializeField] private GameObject enemyBulletPrefab;
     [SerializeField] private Transform firePoint;
     [SerializeField] private float fireInterval = 1.2f;
+
+    [Header("Item Drop")]
+    [SerializeField, Range(0f, 1f)] private float itemDropChance = 0.3f;
+    [SerializeField] private GameObject boomItemPrefab;
+    [SerializeField] private GameObject coinItemPrefab;
+    [SerializeField] private GameObject powerItemPrefab;
     
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rigidBody;
@@ -118,6 +124,7 @@ public class Enemy : MonoBehaviour
 
         if (health <= 0)
         {
+            TryDropItem();
             Destroy(gameObject);
         }
     }
@@ -241,5 +248,46 @@ public class Enemy : MonoBehaviour
     private bool IsEnemyCShooter()
     {
         return enemyType == EnemyType.C || gameObject.tag == "EnemyC";
+    }
+
+    private void TryDropItem()
+    {
+        if (Random.value > itemDropChance)
+        {
+            return;
+        }
+
+        GameObject[] candidates = { boomItemPrefab, coinItemPrefab, powerItemPrefab };
+        int validCount = 0;
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            if (candidates[i] != null)
+            {
+                validCount++;
+            }
+        }
+
+        if (validCount == 0)
+        {
+            return;
+        }
+
+        int pick = Random.Range(0, validCount);
+        int current = 0;
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            if (candidates[i] == null)
+            {
+                continue;
+            }
+
+            if (current == pick)
+            {
+                Instantiate(candidates[i], transform.position, Quaternion.identity);
+                return;
+            }
+
+            current++;
+        }
     }
 }
