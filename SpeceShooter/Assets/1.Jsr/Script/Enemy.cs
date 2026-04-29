@@ -125,7 +125,7 @@ public class Enemy : MonoBehaviour
         if (health <= 0)
         {
             TryDropItem();
-            Destroy(gameObject);
+            ReturnEnemyToPool();
         }
     }
 
@@ -141,7 +141,7 @@ public class Enemy : MonoBehaviour
     {
         if (collision.CompareTag("BorderBullet"))
         {
-            Destroy(gameObject);
+            ReturnEnemyToPool();
         }
         else
         {
@@ -149,7 +149,7 @@ public class Enemy : MonoBehaviour
             if (damage > 0)
             {
                 OnHit(damage);
-                Destroy(collision.gameObject);
+                ReturnBulletToPool(collision.gameObject);
             }
         }
     }
@@ -248,6 +248,22 @@ public class Enemy : MonoBehaviour
     private bool IsEnemyCShooter()
     {
         return enemyType == EnemyType.C || gameObject.tag == "EnemyC";
+    }
+
+    private void ReturnEnemyToPool()
+    {
+        if (PoolManager.Instance != null)
+            PoolManager.Instance.ReturnToPool(gameObject);
+        else
+            Destroy(gameObject);
+    }
+
+    private void ReturnBulletToPool(GameObject bullet)
+    {
+        if (PoolManager.Instance != null)
+            PoolManager.Instance.ReturnToPool(bullet);
+        else
+            Destroy(bullet);
     }
 
     private void TryDropItem()
