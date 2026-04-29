@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: f8a434a14a404d7469795be0039e165d
+=======
+guid: 6357d731b7e8f8d4898bec072aa30322
+>>>>>>> e3c6f7c (Sync all current local changes across scenes, prefabs, scripts, and gitignore.)
 PrefabImporter:
   externalObjects: {}
   userData: 

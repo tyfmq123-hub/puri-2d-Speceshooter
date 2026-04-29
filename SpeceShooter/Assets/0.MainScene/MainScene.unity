@@ -284,7 +284,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2575772064965999470, guid: 6da2146613365824a92a907f32265453, type: 3}
       propertyPath: power
+<<<<<<< HEAD
       value: 1
+=======
+      value: 0
+>>>>>>> e3c6f7c (Sync all current local changes across scenes, prefabs, scripts, and gitignore.)
       objectReference: {fileID: 0}
     - target: {fileID: 2575772064965999470, guid: 6da2146613365824a92a907f32265453, type: 3}
       propertyPath: followerRoot

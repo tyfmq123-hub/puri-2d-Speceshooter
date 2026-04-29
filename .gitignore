@@ -114,3 +114,5 @@ InitTestScene*.unity*
 /SpeceShooter/[Ll]ogs/
 /SpeceShooter/[Uu]ser[Ss]ettings/
 /SpeceShooter/.vs/
+/.idea/
+/SpeceShooter/.idea/
