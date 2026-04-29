@@ -25,21 +25,35 @@ public class UIManager : MonoBehaviour
  
     // 붐 이미지 배열 (BoomImage_0, BoomImage_1, BoomImage_2)
     public Image[] boomImages;
+    private const int MaxBoomCount = 3;
     private int boomCount = 0;
 
     private int score;
+    public int CurrentBoomCount => boomCount;
+    public int MaxBoom => MaxBoomCount;
 
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
+        AutoBindUIReferences();
     }
 
     void Start()
     {
+        AutoBindUIReferences();
+
         if (retryButton != null)
             retryButton.onClick.AddListener(OnRetryButtonClick);
 
+        InitializeUI();
         UpdateScoreText();
+        UpdateBoomUI();
     }
 
     private void OnDestroy()
@@ -52,6 +66,15 @@ public class UIManager : MonoBehaviour
     // 반환값: true = 게임오버, false = 아직 목숨 남음
     public bool DecreaseLife()
     {
+        if (images == null || images.Length == 0)
+        {
+            if (gameOverPanel != null)
+            {
+                gameOverPanel.SetActive(true);
+            }
+            return true;
+        }
+
         int visibleLifeCount = 0;
         for (int i = 0; i < images.Length; i++)
         {
@@ -72,7 +95,10 @@ public class UIManager : MonoBehaviour
 
                 if (visibleLifeCount == 1)
                 {
-                    gameOverPanel.SetActive(true);
+                    if (gameOverPanel != null)
+                    {
+                        gameOverPanel.SetActive(true);
+                    }
                     return true;
                 }
 
@@ -80,7 +106,10 @@ public class UIManager : MonoBehaviour
             }
         }
 
-        gameOverPanel.SetActive(true);
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(true);
+        }
         return true;
     }
 
@@ -187,7 +216,7 @@ public class UIManager : MonoBehaviour
 
     public void AddBoom()
     {
-        if (boomCount >= 3) return;
+        if (boomCount >= MaxBoomCount) return;
         boomCount++;
         UpdateBoomUI();
     }
@@ -202,12 +231,101 @@ public class UIManager : MonoBehaviour
 
     private void UpdateBoomUI()
     {
+        if (boomImages == null)
+        {
+            return;
+        }
+
         for (int i = 0; i < boomImages.Length; i++)
         {
+            if (boomImages[i] == null)
+            {
+                continue;
+            }
+
             // boomCount보다 작은 인덱스만 보이게
             Color color = boomImages[i].color;
             color.a = i < boomCount ? 1f : 0f;
             boomImages[i].color = color;
+        }
+    }
+
+    private void InitializeUI()
+    {
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(false);
+        }
+
+        if (images != null)
+        {
+            for (int i = 0; i < images.Length; i++)
+            {
+                if (images[i] == null)
+                {
+                    continue;
+                }
+
+                Color color = images[i].color;
+                color.a = 1f;
+                images[i].color = color;
+            }
+        }
+    }
+
+    private void AutoBindUIReferences()
+    {
+        if (gameOverPanel == null)
+        {
+            GameObject foundPanel = GameObject.Find("GameOverPanel") ?? GameObject.Find("GAME OVER") ?? GameObject.Find("GameOver");
+            if (foundPanel != null)
+            {
+                gameOverPanel = foundPanel;
+            }
+        }
+
+        if (retryButton == null)
+        {
+            GameObject foundRetry = GameObject.Find("RetryButton") ?? GameObject.Find("Retry");
+            if (foundRetry != null)
+            {
+                retryButton = foundRetry.GetComponent<Button>();
+            }
+        }
+
+        if (scoreText == null)
+        {
+            GameObject foundScore = GameObject.Find("ScoreText") ?? GameObject.Find("Score");
+            if (foundScore != null)
+            {
+                scoreText = foundScore.GetComponent<TextMeshProUGUI>();
+            }
+        }
+
+        if ((images == null || images.Length == 0))
+        {
+            images = new Image[3];
+            for (int i = 0; i < 3; i++)
+            {
+                GameObject foundLife = GameObject.Find($"Life_{i}");
+                if (foundLife != null)
+                {
+                    images[i] = foundLife.GetComponent<Image>();
+                }
+            }
+        }
+
+        if ((boomImages == null || boomImages.Length == 0))
+        {
+            boomImages = new Image[3];
+            for (int i = 0; i < 3; i++)
+            {
+                GameObject foundBoom = GameObject.Find($"BoomImage_{i}");
+                if (foundBoom != null)
+                {
+                    boomImages[i] = foundBoom.GetComponent<Image>();
+                }
+            }
         }
     }
 }

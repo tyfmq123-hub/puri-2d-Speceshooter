@@ -248,10 +248,6 @@ public class Enemy : MonoBehaviour
         else
         {
             playerComp.life = Mathf.Max(0, playerComp.life - appliedDamage);
-            if (playerComp.life <= 0)
-            {
-                Destroy(playerComp.gameObject);
-            }
         }
     }
 
