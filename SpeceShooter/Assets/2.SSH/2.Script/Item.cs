@@ -59,14 +59,73 @@ public class Item : MonoBehaviour
             cachedTransform.Translate(Vector3.down * speed * Time.deltaTime);
 
             // AreaDrawer 경계 밖으로 나가면 삭제
-            if (AreaDrawer.Instance != null && AreaDrawer.Instance.IsOutOfBounds(cachedTransform.position))
-                break;
+            //if (AreaDrawer.Instance != null && AreaDrawer.Instance.IsOutOfBounds(cachedTransform.position))
+                //break;
 
             yield return null;
         }
 
         moveCoroutine = null;
         Destroy(gameObject);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!other.CompareTag("Player"))
+        {
+            return;
+        }
+
+        StopMove();
+
+        ItemType resolvedType = ResolveItemType();
+        switch (resolvedType)
+        {
+            case ItemType.Coin:
+                if (UIManager.Instance != null)
+                {
+                    UIManager.Instance.AddScore(100);
+                }
+                break;
+            case ItemType.Boom:
+                if (UIManager.Instance != null)
+                {
+                    UIManager.Instance.AddBoom();
+                }
+                break;
+            case ItemType.Power:
+                if (Player.Instance != null)
+                {
+                    Player.Instance.power++;
+                }
+                break;
+        }
+
+        Destroy(gameObject);
+    }
+
+    private ItemType ResolveItemType()
+    {
+        if (itemType != ItemType.None)
+        {
+            return itemType;
+        }
+
+        string lowerName = gameObject.name.ToLowerInvariant();
+        if (lowerName.Contains("coin"))
+        {
+            return ItemType.Coin;
+        }
+        if (lowerName.Contains("boom"))
+        {
+            return ItemType.Boom;
+        }
+        if (lowerName.Contains("power"))
+        {
+            return ItemType.Power;
+        }
+
+        return ItemType.None;
     }
 
     void OnDisable()

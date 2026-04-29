@@ -6,11 +6,17 @@ public class CreateEnemyManager : MonoBehaviour
 {
     public static CreateEnemyManager Instance;
 
+    [Header("Enemy Prefabs (Fallback when PoolManager is missing)")]
+    public GameObject enemyAPrefab;
+    public GameObject enemyBPrefab;
+    public GameObject enemyCPrefab;
+
     [Header("Spawn Settings")]
     public float spawnInterval = 2f;
     [SerializeField] private Transform[] spawnPoints;
 
     public Action<GameObject> OnEnemySpawned;
+    private bool warnedMissingPool;
 
     void Awake()
     {
@@ -34,16 +40,45 @@ public class CreateEnemyManager : MonoBehaviour
 
     private void SpawnEnemy()
     {
-        if (PoolManager.Instance == null) return;
-
         // 0:A 1:B 2:C 중 랜덤
         int index = UnityEngine.Random.Range(0, 3);
-        GameObject enemy = index switch
+
+        GameObject enemy = null;
+        GameObject fallbackPrefab = index switch
         {
-            0 => PoolManager.Instance.GetEnemyA(),
-            1 => PoolManager.Instance.GetEnemyB(),
-            _ => PoolManager.Instance.GetEnemyC()
+            0 => enemyAPrefab,
+            1 => enemyBPrefab,
+            _ => enemyCPrefab
         };
+
+        if (PoolManager.Instance != null)
+        {
+            enemy = index switch
+            {
+                0 => PoolManager.Instance.GetEnemyA(),
+                1 => PoolManager.Instance.GetEnemyB(),
+                _ => PoolManager.Instance.GetEnemyC()
+            };
+
+            // Pool exists but couldn't provide an object (pool empty or unconfigured).
+            if (enemy == null && fallbackPrefab != null)
+            {
+                enemy = Instantiate(fallbackPrefab);
+            }
+        }
+        else
+        {
+            if (!warnedMissingPool)
+            {
+                Debug.LogWarning("PoolManager not found. CreateEnemyManager is using prefab instantiate fallback.");
+                warnedMissingPool = true;
+            }
+
+            if (fallbackPrefab != null)
+            {
+                enemy = Instantiate(fallbackPrefab);
+            }
+        }
 
         if (enemy == null) return;
 

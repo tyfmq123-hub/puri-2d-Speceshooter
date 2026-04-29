@@ -29,9 +29,14 @@ public class EnemyBullet : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Player playerComp = other.GetComponent<Player>();
-
-            if (ImpactBulletManager.Instance != null)
+            if (UIManager.Instance != null && playerComp != null)
+            {
+                UIManager.Instance.HandlePlayerHit(other.gameObject, playerComp.GetRespawnPosition(), playerComp.RespawnDelay, damage);
+            }
+            else if (ImpactBulletManager.Instance != null)
+            {
                 ImpactBulletManager.Instance.DamagePlayer(playerComp, damage);
+            }
             else if (playerComp != null)
             {
                 playerComp.life -= damage;

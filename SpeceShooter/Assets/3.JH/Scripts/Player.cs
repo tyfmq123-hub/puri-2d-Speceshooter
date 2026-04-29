@@ -27,6 +27,10 @@ public class Player : MonoBehaviour
     [Header("Follower")]
     [SerializeField] private Follower followerPrefab;
     [SerializeField] private Transform followerRoot;
+    
+    [Header("Respawn")]
+    [SerializeField] private float respawnDelay = 1.5f;
+    [SerializeField] private Transform respawnPoint;
 
     private const string MoveStateParam = "State";
     
@@ -60,6 +64,13 @@ public class Player : MonoBehaviour
         SyncFollowerCount();
     }
 
+    public float RespawnDelay => respawnDelay;
+
+    public Vector3 GetRespawnPosition()
+    {
+        return respawnPoint != null ? respawnPoint.position : transform.position;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -85,7 +96,12 @@ public class Player : MonoBehaviour
 
         followers.RemoveAll(follower => follower == null);
 
-        Transform root = followerRoot != null ? followerRoot : null;
+        Transform root = followerRoot;
+        if (root != null && !root.gameObject.scene.IsValid())
+        {
+            // Assigned object is a persistent asset (e.g. prefab), cannot be a runtime parent.
+            root = null;
+        }
 
         while (followers.Count < desiredCount)
         {

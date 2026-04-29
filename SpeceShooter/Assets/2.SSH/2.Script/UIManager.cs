@@ -19,6 +19,9 @@ public class UIManager : MonoBehaviour
 
     // 점수 텍스트
     public TextMeshProUGUI scoreText;
+
+    [Header("Item Prefabs")]
+    public GameObject[] itemPrefabs; // 0: Coin, 1: Power, 2: Boom
  
     // 붐 이미지 배열 (BoomImage_0, BoomImage_1, BoomImage_2)
     public Image[] boomImages;
@@ -82,11 +85,24 @@ public class UIManager : MonoBehaviour
     }
 
     // 플레이어 피격 처리
-    public void HandlePlayerHit(GameObject playerGo, Vector3 respawnPosition, float respawnDelay)
+    public void HandlePlayerHit(GameObject playerGo, Vector3 respawnPosition, float respawnDelay, int damageAmount = 1)
     {
         if (playerGo == null) return;
 
-        bool isGameOver = DecreaseLife();
+        int appliedDamage = Mathf.Max(1, damageAmount);
+        bool isGameOver = false;
+        for (int i = 0; i < appliedDamage; i++)
+        {
+            isGameOver = DecreaseLife();
+            if (isGameOver) break;
+        }
+
+        Player player = playerGo.GetComponent<Player>();
+        if (player != null)
+        {
+            player.life = Mathf.Max(0, player.life - appliedDamage);
+        }
+
         playerGo.SetActive(false);
 
         if (isGameOver) return;
@@ -136,19 +152,25 @@ public class UIManager : MonoBehaviour
     }
     public void CreateItem(Vector3 pos)
     {
+        if (itemPrefabs == null || itemPrefabs.Length < 3)
+            return;
+
         // 0~9 랜덤 (0~2: None 30%, 3~5: Coin 30%, 6~7: Power 20%, 8~9: Boom 20%)
         int rand = Random.Range(0, 10);
 
         GameObject prefab = null;
 
         if (rand >= 3 && rand <= 5)
-            prefab = items[0]; // Coin
+            prefab = itemPrefabs[0]; // Coin
         else if (rand >= 6 && rand <= 7)
-            prefab = items[1]; // Power
+            prefab = itemPrefabs[1]; // Power
         else if (rand >= 8 && rand <= 9)
-            prefab = items[2]; // Boom
+            prefab = itemPrefabs[2]; // Boom
         else
             return; // None = 아이템 안 나옴
+
+        if (prefab == null)
+            return;
 
         GameObject go = Instantiate(prefab, pos, Quaternion.identity);
         Item item = go.GetComponent<Item>();

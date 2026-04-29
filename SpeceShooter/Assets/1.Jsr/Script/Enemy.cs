@@ -352,7 +352,12 @@ public class Enemy : MonoBehaviour
 
             if (current == pick)
             {
-                Instantiate(candidates[i], transform.position, Quaternion.identity);
+                GameObject droppedItem = Instantiate(candidates[i], transform.position, Quaternion.identity);
+                Item itemComponent = droppedItem.GetComponent<Item>();
+                if (itemComponent != null)
+                {
+                    itemComponent.BeginMove();
+                }
                 return;
             }
 
