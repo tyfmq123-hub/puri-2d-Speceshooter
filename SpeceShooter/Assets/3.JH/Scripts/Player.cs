@@ -42,6 +42,9 @@ public class Player : MonoBehaviour
     private Vector2 moveInput;
     private float lastAttackTime;
     private int moveStateHash;
+    private int previousLife;
+    private States previousState;
+    private bool deathLogged;
     private readonly List<Follower> followers = new List<Follower>();
     private int syncedFollowerCount = -1;
     private readonly List<Vector3> positionHistory = new List<Vector3>();
@@ -62,6 +65,10 @@ public class Player : MonoBehaviour
         animator = GetComponent<Animator>();
         lastAttackTime = -attackCooldown;
         moveStateHash = Animator.StringToHash(MoveStateParam);
+        previousLife = life;
+        previousState = state;
+        Debug.Log($"[Player] Life initialized: {life}", this);
+        Debug.Log($"[Player] State initialized: {state}", this);
         positionHistory.Add(transform.position);
         SyncFollowerCount();
     }
@@ -76,9 +83,23 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (life != previousLife)
+        {
+            Debug.Log($"[Player] Life changed: {previousLife} -> {life}", this);
+            previousLife = life;
+            deathLogged = false;
+        }
+
         if (life <= 0)
         {
+            if (!deathLogged)
+            {
+                Debug.Log("[Player] Life reached 0. State changed to Dead.", this);
+                deathLogged = true;
+            }
+
             state = States.Dead;
+            LogStateChanged();
             RemoveAllFollowers();
             return;
         }
@@ -91,6 +112,18 @@ public class Player : MonoBehaviour
         HandleAttack();
         SyncFollowerCount();
         UpdateAnimation();
+        LogStateChanged();
+    }
+
+    private void LogStateChanged()
+    {
+        if (state == previousState)
+        {
+            return;
+        }
+
+        Debug.Log($"[Player] State changed: {previousState} -> {state}", this);
+        previousState = state;
     }
 
     private void SyncFollowerCount()
