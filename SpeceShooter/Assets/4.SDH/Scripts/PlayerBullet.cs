@@ -38,9 +38,10 @@ public class PlayerBullet : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        // 컨테이너 자식이면 PlayerBulletChild가 충돌 처리
         if (parentContainer != null) return;
-
+        if (other.GetComponent<PlayerBullet>() != null) return;
+        if (other.GetComponent<PlayerBulletChild>() != null) return;
+        if (other.GetComponent<PlayerBulletContainer>() != null) return;
         if (!other.CompareTag("Enemy")) return;
 
         if (ImpactBulletManager.Instance != null)

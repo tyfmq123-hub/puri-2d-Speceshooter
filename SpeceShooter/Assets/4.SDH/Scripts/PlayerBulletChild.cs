@@ -7,6 +7,9 @@ public class PlayerBulletChild : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        if (other.GetComponent<PlayerBullet>() != null) return;
+        if (other.GetComponent<PlayerBulletChild>() != null) return;
+        if (other.GetComponent<PlayerBulletContainer>() != null) return;
         if (!other.CompareTag("Enemy")) return;
 
         if (ImpactBulletManager.Instance != null)

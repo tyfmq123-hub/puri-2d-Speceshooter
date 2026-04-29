@@ -37,14 +37,14 @@ public class BoomManager : MonoBehaviour
         }
 
         // 씬의 모든 적 처리 - OnHit(9999)으로 일반 사망 플로우 실행 (아이템 드랍 포함)
-        foreach (var enemy in FindObjectsOfType<Enemy>())
+        foreach (var enemy in FindObjectsByType<Enemy>(FindObjectsSortMode.None))
         {
             if (enemy == null || !enemy.gameObject.activeInHierarchy) continue;
             enemy.gameObject.SendMessage("OnHit", 9999, SendMessageOptions.DontRequireReceiver);
         }
 
         // 씬의 모든 적 총알 제거
-        foreach (var bullet in FindObjectsOfType<EnemyBullet>())
+        foreach (var bullet in FindObjectsByType<EnemyBullet>(FindObjectsSortMode.None))
         {
             if (bullet == null || !bullet.gameObject.activeInHierarchy) continue;
             if (PoolManager.Instance != null)

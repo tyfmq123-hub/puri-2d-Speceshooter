@@ -37,7 +37,12 @@ public class EnemyBullet : MonoBehaviour
 
         Player player = other.GetComponent<Player>();
         if (player != null)
-            player.TakeDamage(damage);
+        {
+            if (UIManager.Instance != null)
+                UIManager.Instance.HandlePlayerHit(other.gameObject, player.GetRespawnPosition(), player.RespawnDelay, damage);
+            else
+                player.TakeDamage(damage);
+        }
 
         ReturnToPool();
     }

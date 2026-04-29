@@ -16,7 +16,6 @@ public class Enemy : MonoBehaviour
     public int health;
     public Sprite[] sprites;
     [SerializeField] private bool useHealthByType = false;
-    [SerializeField] private bool useSpeedByType = true;
     [SerializeField] private float defaultMoveSpeed = 2f;
     [SerializeField] private float enemyASpeed = 2f;
     [SerializeField] private float enemyBSpeed = 2.5f;
@@ -34,7 +33,6 @@ public class Enemy : MonoBehaviour
     [SerializeField] private int collisionDamage = 1;
 
     [Header("Item Drop")]
-    [SerializeField, Range(0f, 1f)] private float itemDropChance = 0.3f;
     [SerializeField] private GameObject boomItemPrefab;
     [SerializeField] private GameObject coinItemPrefab;
     [SerializeField] private GameObject powerItemPrefab;
@@ -374,50 +372,22 @@ public class Enemy : MonoBehaviour
 
     private void TryDropItem()
     {
-        if (Random.value > itemDropChance)
+        // None 25% / Coin 25% / Power 25% / Boom 25%
+        int rand = Random.Range(0, 4);
+        if (rand == 0) return;
+
+        GameObject[] candidates = { coinItemPrefab, powerItemPrefab, boomItemPrefab };
+        GameObject prefab = candidates[rand - 1];
+
+        if (prefab != null)
         {
+            GameObject droppedItem = Instantiate(prefab, transform.position, Quaternion.identity);
+            Item itemComponent = droppedItem.GetComponent<Item>();
+            if (itemComponent != null)
+                itemComponent.BeginMove();
             return;
         }
 
-        GameObject[] candidates = { boomItemPrefab, coinItemPrefab, powerItemPrefab };
-        int validCount = 0;
-        for (int i = 0; i < candidates.Length; i++)
-        {
-            if (candidates[i] != null)
-            {
-                validCount++;
-            }
-        }
-
-        // 자체 프리팹 없으면 UIManager에 위임
-        if (validCount == 0)
-        {
-            if (UIManager.Instance != null)
-                UIManager.Instance.CreateItem(transform.position);
-            return;
-        }
-
-        int pick = Random.Range(0, validCount);
-        int current = 0;
-        for (int i = 0; i < candidates.Length; i++)
-        {
-            if (candidates[i] == null)
-            {
-                continue;
-            }
-
-            if (current == pick)
-            {
-                GameObject droppedItem = Instantiate(candidates[i], transform.position, Quaternion.identity);
-                Item itemComponent = droppedItem.GetComponent<Item>();
-                if (itemComponent != null)
-                {
-                    itemComponent.BeginMove();
-                }
-                return;
-            }
-
-            current++;
-        }
+        UIManager.Instance?.CreateItem(transform.position);
     }
 }
