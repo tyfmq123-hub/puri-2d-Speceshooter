@@ -385,8 +385,11 @@ public class Enemy : MonoBehaviour
             }
         }
 
+        // 자체 프리팹 없으면 UIManager에 위임
         if (validCount == 0)
         {
+            if (UIManager.Instance != null)
+                UIManager.Instance.CreateItem(transform.position);
             return;
         }
 

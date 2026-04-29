@@ -19,11 +19,9 @@ public class ImpactBulletManager : MonoBehaviour
     {
         if (player == null) return;
 
-        player.life -= damage;
+        player.TakeDamage(damage);
         OnPlayerDamaged?.Invoke(damage);
-
-        if (player.life <= 0)
-            Destroy(player.gameObject);
+        // 사망 처리는 Player.Update()의 life <= 0 감지에 위임
     }
 
     // player 총알이 적에 맞았을 때 (Enemy.cs의 OnHit 호출)

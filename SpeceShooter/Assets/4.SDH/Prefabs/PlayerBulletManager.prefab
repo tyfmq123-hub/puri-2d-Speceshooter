@@ -44,4 +44,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 290c78e3812e09b47b00c145996d9313, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBulletManager
-  bulletPrefab: {fileID: 0}
+  playerBullet01Prefab: {fileID: 7322430314308258510, guid: f8a434a14a404d7469795be0039e165d, type: 3}
+  playerBullet02Prefab: {fileID: 6384013492361492286, guid: 899984cd7bcff39458a28b4a61cfa31d, type: 3}
+  playerBullet03Prefab: {fileID: 432561248955336210, guid: eee9a53611e6c1542ba3dbbe813098e8, type: 3}
+  bulletSpeed: 10
+  spacing: 0.3
+  midForwardOffset: 0.15
+  bullet01Damage: 10
+  bullet02DamageL: 10
+  bullet02DamageM: 15
+  bullet02DamageR: 10
+  bullet03DamageL: 15
+  bullet03DamageM: 20
+  bullet03DamageR: 15

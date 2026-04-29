@@ -6,6 +6,7 @@ public class EnemyBullet : MonoBehaviour
     public int damage = 1;
 
     private Vector2 direction;
+    private Camera cachedCamera;
 
     public void SetDirection(Vector2 dir)
     {
@@ -16,36 +17,29 @@ public class EnemyBullet : MonoBehaviour
     {
         transform.Translate(direction * speed * Time.deltaTime, Space.World);
 
-        Camera mainCamera = Camera.main;
-        if (mainCamera == null) return;
+        if (cachedCamera == null) cachedCamera = Camera.main;
 
-        Vector3 viewPos = mainCamera.WorldToViewportPoint(transform.position);
-        if (viewPos.y < 0f || viewPos.x < -0.1f || viewPos.x > 1.1f)
+        if (cachedCamera != null)
+        {
+            Vector3 viewPos = cachedCamera.WorldToViewportPoint(transform.position);
+            if (viewPos.y < 0f || viewPos.x < -0.1f || viewPos.x > 1.1f)
+                ReturnToPool();
+        }
+        else if (transform.position.y < -20f)
+        {
             ReturnToPool();
+        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
-        {
-            Player playerComp = other.GetComponent<Player>();
-            if (UIManager.Instance != null && playerComp != null)
-            {
-                UIManager.Instance.HandlePlayerHit(other.gameObject, playerComp.GetRespawnPosition(), playerComp.RespawnDelay, damage);
-            }
-            else if (ImpactBulletManager.Instance != null)
-            {
-                ImpactBulletManager.Instance.DamagePlayer(playerComp, damage);
-            }
-            else if (playerComp != null)
-            {
-                playerComp.life -= damage;
-                if (playerComp.life <= 0)
-                    Destroy(playerComp.gameObject);
-            }
+        if (!other.CompareTag("Player")) return;
 
-            ReturnToPool();
-        }
+        Player player = other.GetComponent<Player>();
+        if (player != null)
+            player.TakeDamage(damage);
+
+        ReturnToPool();
     }
 
     void ReturnToPool()

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 public class Player : MonoBehaviour
@@ -24,7 +25,6 @@ public class Player : MonoBehaviour
 
     [Header("Attack")]
     [SerializeField] private float attackCooldown = 0.15f;
-    [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Transform firePoint;
 
     [Header("Follower")]
@@ -47,6 +47,7 @@ public class Player : MonoBehaviour
     private States previousState;
     private bool deathLogged;
     private bool deathHandled;
+    private Coroutine fireCoroutine;
     private readonly List<Follower> followers = new List<Follower>();
     private int syncedFollowerCount = -1;
     private readonly List<Vector3> positionHistory = new List<Vector3>();
@@ -82,6 +83,12 @@ public class Player : MonoBehaviour
         return respawnPoint != null ? respawnPoint.position : transform.position;
     }
 
+    public void TakeDamage(int amount)
+    {
+        if (state == States.Dead) return;
+        life = Mathf.Max(0, life - amount);
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -94,6 +101,11 @@ public class Player : MonoBehaviour
 
         if (life <= 0)
         {
+            if (fireCoroutine != null)
+            {
+                StopCoroutine(fireCoroutine);
+                fireCoroutine = null;
+            }
             HandleDeath();
             return;
         }
@@ -298,46 +310,44 @@ public class Player : MonoBehaviour
 
     private void HandleAttack()
     {
-        if (!Input.GetKey(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (state == States.Attack)
+            if (fireCoroutine != null) StopCoroutine(fireCoroutine);
+            fireCoroutine = StartCoroutine(FireRoutine());
+        }
+
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            if (fireCoroutine != null)
             {
-                state = moveInput == Vector2.zero ? States.Idle : States.Move;
+                StopCoroutine(fireCoroutine);
+                fireCoroutine = null;
             }
-            return;
+            if (state == States.Attack)
+                state = moveInput == Vector2.zero ? States.Idle : States.Move;
         }
+    }
 
-        if (Time.time - lastAttackTime < attackCooldown)
+    private IEnumerator FireRoutine()
+    {
+        while (true)
         {
-            return;
+            state = States.Attack;
+            attackPoint = power;
+            SpawnBullet();
+            yield return new WaitForSeconds(attackCooldown);
         }
-
-        lastAttackTime = Time.time;
-        state = States.Attack;
-        attackPoint = power;
-        SpawnBullet();
     }
 
     private void SpawnBullet()
     {
-        Vector3 spawnPosition = firePoint != null ? firePoint.position : transform.position;
-        Quaternion spawnRotation = firePoint != null ? firePoint.rotation : transform.rotation;
-
-        if (PlayerBulletManager.Instance != null)
-        {
-            PlayerBulletManager.Instance.Fire((Vector2)spawnPosition, power);
-        }
-        else if (bulletPrefab != null)
-        {
-            Instantiate(bulletPrefab, spawnPosition, spawnRotation);
-        }
+        Vector2 spawnPos = firePoint != null ? (Vector2)firePoint.position : (Vector2)transform.position;
+        PlayerBulletManager.Instance?.Fire(spawnPos);
 
         foreach (var follower in followers)
         {
             if (follower != null)
-            {
-                follower.Fire(bulletPrefab, spawnRotation);
-            }
+                follower.Fire();
         }
     }
 

@@ -116,6 +116,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb5eff8410ebbd04fa21f8a31386e41f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CreateEnemyManager
+  enemyAPrefab: {fileID: 5357363269009084651, guid: e4fde29c370a9fb4ead2f99d5b0d5500, type: 3}
+  enemyBPrefab: {fileID: 5902332242425007054, guid: 33895668b27dd7f4682b6d4bcfe771fd, type: 3}
+  enemyCPrefab: {fileID: 7022888939626580558, guid: 8cc3e07ddc5ed2e498972fffd9933359, type: 3}
   spawnInterval: 2
   spawnPoints: []
 --- !u!1 &4240884666711088417

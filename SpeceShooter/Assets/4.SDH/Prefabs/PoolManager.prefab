@@ -44,7 +44,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02640ad9deaf9e1479de9d28b9dce92c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoolManager
-  playerBulletPrefab: {fileID: 7322430314308258510, guid: f8a434a14a404d7469795be0039e165d, type: 3}
-  playerBulletCount: 30
+  playerBullet01Prefab: {fileID: 7322430314308258510, guid: f8a434a14a404d7469795be0039e165d, type: 3}
+  playerBullet01Count: 30
+  playerBullet02Prefab: {fileID: 6384013492361492286, guid: 899984cd7bcff39458a28b4a61cfa31d, type: 3}
+  playerBullet02Count: 15
+  playerBullet03Prefab: {fileID: 432561248955336210, guid: eee9a53611e6c1542ba3dbbe813098e8, type: 3}
+  playerBullet03Count: 15
   enemyBulletPrefab: {fileID: 7329556616882938517, guid: 920c19032f9352349b285cc746ea9461, type: 3}
   enemyBulletCount: 30
+  enemyAPrefab: {fileID: 5357363269009084651, guid: e4fde29c370a9fb4ead2f99d5b0d5500, type: 3}
+  enemyACount: 10
+  enemyBPrefab: {fileID: 5902332242425007054, guid: 33895668b27dd7f4682b6d4bcfe771fd, type: 3}
+  enemyBCount: 10
+  enemyCPrefab: {fileID: 7022888939626580558, guid: 8cc3e07ddc5ed2e498972fffd9933359, type: 3}
+  enemyCCount: 10
