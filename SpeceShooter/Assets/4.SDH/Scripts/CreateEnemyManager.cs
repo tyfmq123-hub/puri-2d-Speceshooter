@@ -136,6 +136,7 @@ public class CreateEnemyManager : MonoBehaviour
         bool alignRotation = false;
         float extraRotation = 0f;
         bool isDiagonalPoint = IsRightDiagonalSpawnPoint(spawnPoint.name) || IsLeftDiagonalSpawnPoint(spawnPoint.name);
+        bool needsEnemyAFlipAtPoint7 = IsSpawnPoint7(spawnPoint.name) && enemy.enemyType == Enemy.EnemyType.A;
         Transform endPoint = spawnPoint.Find("EndPoint");
 
         if (!isDiagonalPoint)
@@ -156,6 +157,10 @@ public class CreateEnemyManager : MonoBehaviour
             {
                 moveDir = towardEndPoint.normalized;
                 alignRotation = true;
+                if (needsEnemyAFlipAtPoint7)
+                {
+                    extraRotation = 180f;
+                }
                 enemy.SetMoveDirection(moveDir, alignRotation, extraRotation);
                 return;
             }
@@ -171,6 +176,10 @@ public class CreateEnemyManager : MonoBehaviour
         {
             moveDir = new Vector2(-0.6f, -1f).normalized;
             alignRotation = true;
+            if (needsEnemyAFlipAtPoint7)
+            {
+                extraRotation = 180f;
+            }
         }
 
         enemy.SetMoveDirection(moveDir, alignRotation, extraRotation);
@@ -194,6 +203,16 @@ public class CreateEnemyManager : MonoBehaviour
         }
 
         return pointName.Contains("7") || pointName.Contains("8");
+    }
+
+    private bool IsSpawnPoint7(string pointName)
+    {
+        if (string.IsNullOrEmpty(pointName))
+        {
+            return false;
+        }
+
+        return pointName.Contains("7");
     }
 
     private void CacheSpawnPointsFromChildren()
