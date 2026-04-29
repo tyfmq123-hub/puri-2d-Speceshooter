@@ -16,7 +16,8 @@ public class Player : MonoBehaviour
     public int attackPoint;
     public int power; // 총알 파워
     public int boomSlot; //가지고 있는 폭탄 갯수 최대치
-
+    public int score;
+    
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float moveInputSmoothing = 0.15f;
