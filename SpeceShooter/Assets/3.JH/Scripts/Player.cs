@@ -67,27 +67,27 @@ public class Player : MonoBehaviour
         float vertical = 0f;
         
         var h = Input.GetAxisRaw("Horizontal");
-        Debug.Log(h);
+        
         
         if (Input.GetKey(KeyCode.LeftArrow))
         {
             horizontal -= 1f;
-            Debug.Log("dfdf");
+            
         }
         if (Input.GetKey(KeyCode.RightArrow))
         {
             horizontal += 1f;
-            Debug.Log("dfdf");
+            
         }
         if (Input.GetKey(KeyCode.UpArrow))
         {
             vertical += 1f;
-            Debug.Log("dfdf");
+            
         }
         if (Input.GetKey(KeyCode.DownArrow))
         {
             vertical -= 1f;
-            Debug.Log("dfdf");
+            
         }
 
         moveInput = new Vector2(horizontal, vertical).normalized;
