@@ -170,17 +170,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8464f01a4f9ed047a9f382ff13a6c82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  enemyType: 0
+  enemyType: 2
   speed: 2
   health: 150
   sprites:
   - {fileID: -8421458170528590454, guid: 138040323294fd440a3a823e5d70ad01, type: 3}
   - {fileID: 3714015224569861163, guid: 138040323294fd440a3a823e5d70ad01, type: 3}
   useHealthByType: 0
-  defaultMoveSpeed: 2
+  useSpeedByType: 0
+  defaultMoveSpeed: 1.5
+  enemyASpeed: 2
+  enemyBSpeed: 5
+  enemyCSpeed: 1.5
+  rotateToMoveDirection: 1
+  rotationOffset: -90
+  invertFacingForEnemyB: 1
   enemyBulletPrefab: {fileID: 7329556616882938517, guid: 920c19032f9352349b285cc746ea9461, type: 3}
   firePoint: {fileID: 4561764380088264194}
   fireInterval: 1.2
+  collisionDamage: 1
   itemDropChance: 0.3
   boomItemPrefab: {fileID: 257619265856148596, guid: 23cd9707d8990d44fa5aae31e67a8392, type: 3}
   coinItemPrefab: {fileID: 1555755017545748983, guid: 6f13d8847cb5b4648853c01cb3facb74, type: 3}

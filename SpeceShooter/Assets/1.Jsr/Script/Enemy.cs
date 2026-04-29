@@ -100,11 +100,6 @@ public class Enemy : MonoBehaviour
 
     private void ApplySpeedByType()
     {
-        if (!useSpeedByType)
-        {
-            return;
-        }
-
         switch (enemyType)
         {
             case EnemyType.A:
