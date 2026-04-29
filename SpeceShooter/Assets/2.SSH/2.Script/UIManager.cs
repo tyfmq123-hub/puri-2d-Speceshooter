@@ -19,6 +19,10 @@ public class UIManager : MonoBehaviour
 
     // 점수 텍스트
     public TextMeshProUGUI scoreText;
+ 
+    // 붐 이미지 배열 (BoomImage_0, BoomImage_1, BoomImage_2)
+    public Image[] boomImages;
+    private int boomCount = 0;
 
     private int score;
 
@@ -129,5 +133,59 @@ public class UIManager : MonoBehaviour
     {
         if (scoreText != null)
             scoreText.text = score.ToString("#,##0");
+    }
+    public void CreateItem(Vector3 pos)
+    {
+        // 0~9 랜덤 (0~2: None 30%, 3~5: Coin 30%, 6~7: Power 20%, 8~9: Boom 20%)
+        int rand = Random.Range(0, 10);
+
+        GameObject prefab = null;
+
+        if (rand >= 3 && rand <= 5)
+            prefab = items[0]; // Coin
+        else if (rand >= 6 && rand <= 7)
+            prefab = items[1]; // Power
+        else if (rand >= 8 && rand <= 9)
+            prefab = items[2]; // Boom
+        else
+            return; // None = 아이템 안 나옴
+
+        GameObject go = Instantiate(prefab, pos, Quaternion.identity);
+        Item item = go.GetComponent<Item>();
+        if (item != null)
+            item.BeginMove();
+    }
+    
+    // 점수 직접 추가
+    public void AddScore(int amount)
+    {
+        score += amount;
+        UpdateScoreText();
+    }
+
+    public void AddBoom()
+    {
+        if (boomCount >= 3) return;
+        boomCount++;
+        UpdateBoomUI();
+    }
+
+    public bool UseBoom()
+    {
+        if (boomCount <= 0) return false;
+        boomCount--;
+        UpdateBoomUI();
+        return true;
+    }
+
+    private void UpdateBoomUI()
+    {
+        for (int i = 0; i < boomImages.Length; i++)
+        {
+            // boomCount보다 작은 인덱스만 보이게
+            Color color = boomImages[i].color;
+            color.a = i < boomCount ? 1f : 0f;
+            boomImages[i].color = color;
+        }
     }
 }
