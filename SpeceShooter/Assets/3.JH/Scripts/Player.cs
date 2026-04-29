@@ -116,7 +116,7 @@ public class Player : MonoBehaviour
         HandleMovement();
         RecordPositionHistory();
         HandleAttack();
-        HandleBoom();
+        //HandleBoom();
         SyncFollowerCount();
         UpdateAnimation();
         LogStateChanged();
@@ -309,11 +309,11 @@ public class Player : MonoBehaviour
         transform.position += (Vector3)(moveInput * moveSpeed * Time.deltaTime);
     }
 
-    private void HandleBoom()
-    {
-        if (Input.GetKeyDown(KeyCode.Z))
-            BoomManager.Instance?.UseBoom();
-    }
+    //private void HandleBoom()
+   // {
+       // if (Input.GetKeyDown(KeyCode.Z))
+            //BoomManager.Instance?.UseBoom();
+    //}
 
     private void HandleAttack()
     {
