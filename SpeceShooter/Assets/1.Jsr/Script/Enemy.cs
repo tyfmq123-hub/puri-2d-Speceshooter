@@ -16,7 +16,14 @@ public class Enemy : MonoBehaviour
     public int health;
     public Sprite[] sprites;
     [SerializeField] private bool useHealthByType = false;
+    [SerializeField] private bool useSpeedByType = true;
     [SerializeField] private float defaultMoveSpeed = 2f;
+    [SerializeField] private float enemyASpeed = 2f;
+    [SerializeField] private float enemyBSpeed = 2.5f;
+    [SerializeField] private float enemyCSpeed = 1.6f;
+    [SerializeField] private bool rotateToMoveDirection = true;
+    [SerializeField] private float rotationOffset = -90f;
+    [SerializeField] private bool invertFacingForEnemyB = true;
 
     [Header("Enemy C Attack")]
     [SerializeField] private GameObject enemyBulletPrefab;
@@ -32,12 +39,14 @@ public class Enemy : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rigidBody;
     private float lastFireTime;
+    private Vector2 moveDirection = Vector2.down;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         rigidBody = GetComponent<Rigidbody2D>();
         EnsureFirePointReference();
+        ApplySpeedByType();
         EnsureMoveSpeed();
 
         if (useHealthByType)
@@ -61,6 +70,7 @@ public class Enemy : MonoBehaviour
     private void OnValidate()
     {
         EnsureFirePointReference();
+        ApplySpeedByType();
         EnsureMoveSpeed();
         if (useHealthByType)
         {
@@ -85,15 +95,58 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    private void ApplySpeedByType()
+    {
+        if (!useSpeedByType)
+        {
+            return;
+        }
+
+        switch (enemyType)
+        {
+            case EnemyType.A:
+                speed = enemyASpeed;
+                break;
+            case EnemyType.B:
+                speed = enemyBSpeed;
+                break;
+            case EnemyType.C:
+                speed = enemyCSpeed;
+                break;
+        }
+    }
+
     private void ApplyDownwardMovement()
     {
         if (rigidBody != null)
         {
-            rigidBody.linearVelocity = Vector2.down * speed;
+            rigidBody.linearVelocity = moveDirection * speed;
         }
         else
         {
-            transform.position += (Vector3)(Vector2.down * speed * Time.deltaTime);
+            transform.position += (Vector3)(moveDirection * speed * Time.deltaTime);
+        }
+    }
+
+    public void SetMoveDirection(Vector2 direction, bool alignRotation = false, float extraRotation = 0f)
+    {
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            moveDirection = Vector2.down;
+            return;
+        }
+
+        moveDirection = direction.normalized;
+
+        if (alignRotation && rotateToMoveDirection)
+        {
+            float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg + rotationOffset;
+            if (invertFacingForEnemyB && enemyType == EnemyType.B)
+            {
+                angle += 180f;
+            }
+            angle += extraRotation;
+            transform.rotation = Quaternion.Euler(0f, 0f, angle);
         }
     }
 
