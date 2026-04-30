@@ -110,6 +110,24 @@ public class UIManager : MonoBehaviour
         return true;
     }
 
+    // Player.TakeDamage()에서 직접 호출 — 데미지 적용 후 Player에 피드백 위임
+    public void ApplyPlayerDamage(Player player, int amount)
+    {
+        if (player == null) return;
+
+        int appliedDamage = Mathf.Max(1, amount);
+        bool isGameOver = false;
+
+        for (int i = 0; i < appliedDamage; i++)
+        {
+            isGameOver = DecreaseLife();
+            if (isGameOver) break;
+        }
+
+        player.life = Mathf.Max(0, player.life - appliedDamage);
+        player.ApplyDamageFeedback(survived: !isGameOver);
+    }
+
     // 플레이어 피격 처리
     public void HandlePlayerHit(GameObject playerGo, Vector3 respawnPosition, float respawnDelay, int damageAmount = 1)
     {
@@ -117,7 +135,6 @@ public class UIManager : MonoBehaviour
 
         Player player = playerGo.GetComponent<Player>();
         if (player != null && player.IsInvincible) return;
-
         int appliedDamage = Mathf.Max(1, damageAmount);
         bool isGameOver = false;
         for (int i = 0; i < appliedDamage; i++)
