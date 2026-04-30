@@ -23,7 +23,7 @@ Unity 2D 세로형 슈팅 게임 팀 프로젝트
 
 #### ✅ 기능 추가
 
-- **BoosBullet.cs 신규**
+- **BossBullet.cs 신규**
   - 보스 총알 이동·방향 제어 (`SetDirection()`)
   - 플레이어 충돌 감지 — 무적 여부 확인 후 데미지 처리
   - 화면 이탈 시 PoolManager 반환
@@ -42,6 +42,10 @@ Unity 2D 세로형 슈팅 게임 팀 프로젝트
   - `FindEndPoint()` 리팩터링: 이름 트리밍 + 대소문자 무시 검색
   - 스폰 포인트 5~7 이동 방향 올바르게 인식
 
+- **ReturnToPool 정책 통일** (`Enemy.cs`, `BossBullet.cs`)
+  - `PoolManager.Release()` 단일 진입점으로 통일
+  - 풀 미존재 시 자동 Destroy fallback
+
 ---
 
 ### 2026-04-30 · 2.SSH
@@ -57,9 +61,13 @@ Unity 2D 세로형 슈팅 게임 팀 프로젝트
     - `FireArc`: 호형 탄막 8발
   - `TakeDamage()`, 사망 시 1000점 추가, 2초 후 비활성화
 
-- **BossBullet123.cs 신규**
+- **BossBullet.cs 신규** (BossBullet123 리네임)
   - `SetDirection()`, `SetForceDirection()` 두 가지 이동 방식 제공
-  - 화면 이탈 시 PoolManager 반환
+  - 화면 이탈 시 `PoolManager.Release()` 반환
+  - `OnEnable()` 상태 초기화 추가
+
+- **BossController.cs 분리**
+  - `Boss.cs`에서 `BossController.cs`로 클래스 분리 (CS0101 충돌 해결)
 
 #### 🔧 기능 수정
 
@@ -114,18 +122,50 @@ Unity 2D 세로형 슈팅 게임 팀 프로젝트
 #### ✅ 기능 추가
 
 - **보스 애니메이션 및 프리팹** (`4.SDH/Animations/`, `4.SDH/Prefabs/`)
-  - `Boss.controller`, `Boss_Idle.anim`, `Boss_Hit.anim` 신규
-  - `Boss.prefab` 신규
+  - `Boss.controller`, `Boss_Hit.anim` 신규
+  - `Boss.prefab`, `Boss_R.prefab` 신규
 
-- **BossMove.cs 신규**
-  - 보스 등장 시 위→아래 이동 코루틴 (`MoveRoutine`)
-  - `OnEnable` 시작 / `OnDisable` 정지 / `Invoke()` 미사용 (CODING_RULES 준수)
+- **BossMove.cs** — 보스 등장 이동 로직
+  - `Boss_StartPoint` → `Boss_EndPoint` 까지 `MoveTowards` 이동
+  - 등장 중 공격 방지: `BossController.CancelInvoke()`로 자동 예약 취소
+  - 도착 후 `attackStartDelay` 대기 → `BossController.Invoke("Think")` 공격 시작
+  - Inspector 미할당 시 씬에서 이름으로 자동 탐색
 
 - **EnemyD 풀 슬롯 추가** (`PoolManager.cs`)
   - 기존 Boss 풀 → EnemyD 로 이름 통일
   - `enemyDPrefab`, `enemyDCount`, `GetEnemyD()` 제공
 
+- **PoolManager.Release()** 전역 정책 도입
+  - `public static void Release(GameObject go)` 추가
+  - 전 스크립트 ReturnToPool/Destroy 분기 → 단일 진입점으로 통일
+  - 적용 범위: `PlayerBullet`, `PlayerBulletChild`, `PlayerBulletContainer`, `EnemyBullet`, `PooledEnemy`, `PowerItem`, `BoomManager`
+
+- **CreateEnemyManager — DataManager 웨이브 스폰 연동**
+  - `WaveRoutine()`: `stage_data.json` 기반 순차 스폰
+  - `SpawnBoss()`: EnemyD 풀에서 꺼내 화면 상단 외부에 배치 후 활성화
+  - `GetSpawnPointByIndex()`: 인덱스 기반 스폰 포인트 지정
+
+- **stage_data.json — 보스 스폰 엔트리 추가**
+  - wave 1: `enemyType 3` (EnemyD) 첫 등장
+  - wave 11 (최종): 5초 딜레이 후 최종 보스 등장
+
 #### 🔧 기능 수정
+
+- **ImpactBulletManager — SendMessage 제거**
+  - `SendMessage("OnHit")` → `GetComponent<Enemy>().OnHit()` 명시 호출
+  - `DamageEnemy(Collider2D, int)` 공개 메서드로 정리
+
+- **PlayerBulletManager — 자동 생성 정책 제거**
+  - `[RuntimeInitializeOnLoadMethod]` 기반 `EnsureInstance()` 제거
+  - 씬 배치 단독 정책으로 통일
+
+- **BoomManager — UseBoom 성공 확인 후 효과 실행**
+  - `UIManager.Instance.UseBoom()` 반환값 확인 — 실패 시 효과 미실행
+  - 적 피격: `SendMessage("OnHit", 9999)` → `enemy.OnHit(9999)` 명시 호출
+
+- **PlayerBullet / PlayerBulletChild — SendMessage 제거**
+  - `ImpactBulletManager.Instance.DamageEnemy()` 직접 호출
+  - `PoolManager.Release()` 통일 적용
 
 - **PlayerBullet 독립 분리** (`PlayerBullet.cs`, `PlayerBulletManager.cs`)
   - L/M/R 총알 컨테이너 방식 제거 → 각각 독립 `PlayerBullet`으로 전환
@@ -142,12 +182,14 @@ Unity 2D 세로형 슈팅 게임 팀 프로젝트
 - **코루틴 전환**
   - `PowerItem.Update()` → 코루틴 `MoveRoutine()`
   - `PooledEnemy.Update()` → 코루틴 `BoundsCheckRoutine()` (0.2초 간격)
-  - `Enemy.Invoke()` → 코루틴 `FlashSprite()`
 
 - **화면 이탈 방지 체크 확장**
-  - `PooledEnemy.cs` — 하단 단방향 → 4방향 bounds 체크 (±0.3 X, +0.3 Y 여유 마진)
-  - `PlayerBullet.cs` — 상단 단방향 → 4방향 이탈 체크
-  - `EnemyBullet.cs` — 상단 이탈 체크 추가 (기존 하단+좌우 → 4방향)
+  - `PooledEnemy.cs` — 하단 단방향 → 4방향 bounds 체크
+  - `PlayerBullet.cs` — 4방향 이탈 체크
+  - `EnemyBullet.cs` — 4방향 이탈 체크
+
+- **MainScene_00 씬 환경 교체**
+  - `0.MainScene/MainScene.unity` 기준으로 씬 전체 교체
 
 ---
 
