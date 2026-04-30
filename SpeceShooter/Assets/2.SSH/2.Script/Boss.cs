@@ -181,7 +181,7 @@ public class BossController : MonoBehaviour
             bullet.SetActive(true);
 
             //#. AddForce 방식으로 방향 전달
-            BoosBullet123 bb = bullet.GetComponent<BoosBullet123>();
+            BossBullet bb = bullet.GetComponent<BossBullet>();
             if (bb != null)
                 bb.SetForceDirection(dirVec, bulletBSpeed);
         }
@@ -289,7 +289,7 @@ public class BossController : MonoBehaviour
         bullet.SetActive(true);
 
         //#. 속도 및 방향 전달
-        BoosBullet123 bb = bullet.GetComponent<BoosBullet123>();
+        BossBullet bb = bullet.GetComponent<BossBullet>();
         if (bb != null)
         {
             bb.speed = bulletASpeed; //#. 속도 설정
@@ -310,7 +310,7 @@ public class BossController : MonoBehaviour
         bullet.SetActive(true);
 
         //#. 속도 및 방향 전달
-        BoosBullet123 bb = bullet.GetComponent<BoosBullet123>();
+        BossBullet bb = bullet.GetComponent<BossBullet>();
         if (bb != null)
         {
             bb.speed = bulletBSpeed; //#. 속도 설정
