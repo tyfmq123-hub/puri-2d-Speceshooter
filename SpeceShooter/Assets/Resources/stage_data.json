@@ -2,7 +2,7 @@
   "waves": [
     {
       "enemies": [
-        { "delay": 1.5, "enemyType": 0, "point": 2 },
+        { "delay": 1.5, "enemyType": 3, "point": 9 },
         { "delay": 0.8, "enemyType": 0, "point": 0 },
         { "delay": 0.8, "enemyType": 0, "point": 4 },
         { "delay": 0.8, "enemyType": 0, "point": 1 }
@@ -136,11 +136,12 @@
         { "delay": 0.15, "enemyType": 1, "point": 7 },
         { "delay": 0.15, "enemyType": 2, "point": 4 },
         { "delay": 0.15, "enemyType": 0, "point": 2 }
+
       ]
     },
     {
       "enemies": [
-        { "delay": 5.0, "enemyType": 3, "point": 0 }
+        { "delay": 5.0, "enemyType": 3, "point": 9 }
       ]
     }
   ]
