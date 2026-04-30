@@ -4,6 +4,10 @@ using System.Reflection;
 
 public class Enemy : MonoBehaviour
 {
+    private const string PlayerTag = "Player";
+    private const string BorderBulletTag = "BorderBullet";
+    private const string EnemyCTag = "EnemyC";
+
     public enum EnemyType { A, B, C }
 
     [Header("Enemy Settings")]
@@ -128,7 +132,13 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void OnHit(int damage)
+    // Shared damage entrypoint used by PlayerBullet/ImpactBulletManager via SendMessage.
+    public void OnHit(int damage)
+    {
+        ApplyDamage(damage);
+    }
+
+    private void ApplyDamage(int damage)
     {
         if (isDead) return;
 
@@ -159,7 +169,7 @@ public class Enemy : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag(PlayerTag))
         {
             Player player = collision.GetComponent<Player>();
             if (player != null && player.IsInvincible) return;
@@ -168,7 +178,7 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        if (collision.CompareTag("BorderBullet"))
+        if (collision.CompareTag(BorderBulletTag))
         {
             ReturnEnemyToPool();
         }
@@ -177,7 +187,7 @@ public class Enemy : MonoBehaviour
             int damage = GetBulletDamage(collision.gameObject);
             if (damage > 0)
             {
-                OnHit(damage);
+                ApplyDamage(damage);
                 ReturnBulletToPool(collision.gameObject);
             }
         }
@@ -185,7 +195,7 @@ public class Enemy : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!collision.gameObject.CompareTag("Player")) return;
+        if (!collision.gameObject.CompareTag(PlayerTag)) return;
         Player player = collision.gameObject.GetComponent<Player>();
         if (player != null && player.IsInvincible) return;
         DamagePlayer(collision.gameObject);
@@ -249,7 +259,7 @@ public class Enemy : MonoBehaviour
         EnemyBullet eb = bulletObj.GetComponent<EnemyBullet>();
         if (eb != null)
         {
-            GameObject playerObj = GameObject.FindWithTag("Player");
+            GameObject playerObj = GameObject.FindWithTag(PlayerTag);
             Vector2 dir = playerObj != null
                 ? ((Vector2)playerObj.transform.position - spawnPosition).normalized
                 : Vector2.down;
@@ -275,7 +285,7 @@ public class Enemy : MonoBehaviour
 
     private bool IsEnemyCShooter()
     {
-        return enemyType == EnemyType.C || gameObject.tag == "EnemyC";
+        return enemyType == EnemyType.C || gameObject.CompareTag(EnemyCTag);
     }
 
     private void ReturnEnemyToPool()

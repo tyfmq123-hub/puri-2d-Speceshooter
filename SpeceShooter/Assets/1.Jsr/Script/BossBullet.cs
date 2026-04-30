@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class BossBullet : MonoBehaviour
 {
+    private const string PlayerTag = "Player";
+
     [Header("Boss Bullet Settings")]
     public float speed = 7f;
     [SerializeField] private int damage = 1;
@@ -10,6 +12,23 @@ public class BossBullet : MonoBehaviour
     private Camera cachedCamera;
     private Rigidbody2D rb;        //#. Rigidbody2D 추가
     private bool useRigidbody = false; //#. AddForce 방식 여부
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    private void OnEnable()
+    {
+        // Pooled bullet state reset.
+        useRigidbody = false;
+        direction = Vector2.down;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+    }
 
     public void SetDirection(Vector2 dir)
     {
@@ -26,9 +45,11 @@ public class BossBullet : MonoBehaviour
     {
         //#. AddForce 방식 (FireAround 용)
         useRigidbody = true;
-        rb = GetComponent<Rigidbody2D>();
         if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
             rb.AddForce(dir.normalized * force, ForceMode2D.Impulse);
+        }
     }
 
     private void Update()
@@ -56,7 +77,7 @@ public class BossBullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.CompareTag("Player"))
+        if (!other.CompareTag(PlayerTag))
             return;
 
         Player player = other.GetComponent<Player>();
@@ -78,6 +99,11 @@ public class BossBullet : MonoBehaviour
     {
         //#. 풀 없으면 삭제
         useRigidbody = false;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
         if (PoolManager.Instance != null)
             PoolManager.Instance.ReturnToPool(gameObject);
         else
