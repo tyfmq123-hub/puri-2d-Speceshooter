@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
 
     [Header("Attack")]
     [SerializeField] private float attackCooldown = 0.15f;
+    [SerializeField] private float fireInputGraceTime = 0.08f;
     [SerializeField] private Transform firePoint;
 
     [Header("Follower")]
@@ -33,10 +34,13 @@ public class Player : MonoBehaviour
     [SerializeField] private Transform followerRoot;
 
     [Header("Damage")]
-    [SerializeField] private float invincibilityDuration = 1f;
+    [SerializeField] private float invincibilityDuration = 0.5f;
+    [SerializeField] private float invincibleBlinkInterval = 0.1f;
+    [SerializeField] private float invincibleAlpha = 0.45f;
     
     [Header("Respawn")]
     [SerializeField] private float respawnDelay = 1.5f;
+    [SerializeField] private float respawnInvincibilityDuration = 0.5f;
     [SerializeField] private Transform respawnPoint;
 
     private const string MoveStateParam = "State";
@@ -44,6 +48,7 @@ public class Player : MonoBehaviour
     
     public States state = States.Idle;
     private Animator animator;
+    private SpriteRenderer[] spriteRenderers;
     private Vector2 moveInput;
     private float lastAttackTime;
     private int moveStateHash;
@@ -53,6 +58,7 @@ public class Player : MonoBehaviour
     private int pendingUiDamage;
     private float hitStateEndTime;
     private float respawnInvincibleEndTime;
+    private float lastFireInputTime = -999f;
     private Coroutine fireCoroutine;
     private readonly List<Follower> followers = new List<Follower>();
     private int syncedFollowerCount = -1;
@@ -72,12 +78,14 @@ public class Player : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
+        spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
         lastAttackTime = -attackCooldown;
         moveStateHash = Animator.StringToHash(MoveStateParam);
         previousLife = life;
         initialSpawnPosition = transform.position;
         positionHistory.Add(transform.position);
         SyncFollowerCount();
+        ApplyVisualAlpha(1f);
     }
 
     public float RespawnDelay => respawnDelay;
@@ -94,7 +102,9 @@ public class Player : MonoBehaviour
 
     public void ActivateRespawnInvincibility(float duration)
     {
-        respawnInvincibleEndTime = Time.time + duration;
+        float appliedDuration = Mathf.Min(duration, respawnInvincibilityDuration);
+        respawnInvincibleEndTime = Time.time + appliedDuration;
+        UpdateInvincibilityVisuals();
     }
 
     public void TakeDamage(int amount)
@@ -129,6 +139,8 @@ public class Player : MonoBehaviour
             StopCoroutine(fireCoroutine);
             fireCoroutine = null;
         }
+
+        UpdateInvincibilityVisuals();
     }
 
     // Update is called once per frame
@@ -138,6 +150,8 @@ public class Player : MonoBehaviour
         {
             state = moveInput == Vector2.zero ? States.Idle : States.Move;
         }
+
+        UpdateInvincibilityVisuals();
 
         if (life != previousLife)
         {
@@ -199,6 +213,8 @@ public class Player : MonoBehaviour
 
     private void OnDisable()
     {
+        ApplyVisualAlpha(1f);
+
         if (life <= 0)
         {
             HandleDeath();
@@ -227,9 +243,49 @@ public class Player : MonoBehaviour
             gameObject.SetActive(false);
     }
 
+    private void UpdateInvincibilityVisuals()
+    {
+        if (spriteRenderers == null || spriteRenderers.Length == 0)
+        {
+            return;
+        }
+
+        float invincibleEndTime = Mathf.Max(hitStateEndTime, respawnInvincibleEndTime);
+        if (Time.time >= invincibleEndTime)
+        {
+            ApplyVisualAlpha(1f);
+            return;
+        }
+
+        float blinkInterval = Mathf.Max(0.05f, invincibleBlinkInterval);
+        bool useTransparentAlpha = Mathf.FloorToInt(Time.time / blinkInterval) % 2 == 0;
+        ApplyVisualAlpha(useTransparentAlpha ? invincibleAlpha : 1f);
+    }
+
+    private void ApplyVisualAlpha(float alpha)
+    {
+        if (spriteRenderers == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < spriteRenderers.Length; i++)
+        {
+            SpriteRenderer spriteRenderer = spriteRenderers[i];
+            if (spriteRenderer == null)
+            {
+                continue;
+            }
+
+            Color color = spriteRenderer.color;
+            color.a = alpha;
+            spriteRenderer.color = color;
+        }
+    }
+
     private void SyncFollowerCount()
     {
-        int desiredCount = Mathf.Clamp(power, 0, 3);
+        int desiredCount = Mathf.Clamp(power - 2, 0, 3);
 
         if (followerPrefab == null)
         {
@@ -391,21 +447,33 @@ public class Player : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        bool isFireInputPressed = Input.GetKey(KeyCode.Space) || Input.GetButton("Fire1");
+        if (isFireInputPressed)
         {
-            if (fireCoroutine != null) StopCoroutine(fireCoroutine);
-            fireCoroutine = StartCoroutine(FireRoutine());
+            lastFireInputTime = Time.time;
         }
 
-        if (Input.GetKeyUp(KeyCode.Space))
+        bool shouldKeepFiring = (Time.time - lastFireInputTime) <= fireInputGraceTime;
+
+        if (shouldKeepFiring)
+        {
+            if (fireCoroutine == null)
+            {
+                fireCoroutine = StartCoroutine(FireRoutine());
+            }
+        }
+        else
         {
             if (fireCoroutine != null)
             {
                 StopCoroutine(fireCoroutine);
                 fireCoroutine = null;
             }
+
             if (state == States.Attack)
+            {
                 state = moveInput == Vector2.zero ? States.Idle : States.Move;
+            }
         }
     }
 

@@ -163,7 +163,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Player
   life: 3
   attackPoint: 0
-  power: 3
+  power: 0
   boomSlot: 0
   score: 0
   moveSpeed: 5
