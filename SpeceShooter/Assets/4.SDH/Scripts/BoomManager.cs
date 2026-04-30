@@ -43,13 +43,13 @@ public class BoomManager : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < 2f)
         {
-            foreach (var enemy in FindObjectsByType<Enemy>(FindObjectsSortMode.None))
+            foreach (var enemy in FindObjectsByType<Enemy>())
             {
                 if (enemy == null || !enemy.gameObject.activeInHierarchy) continue;
                 enemy.gameObject.SendMessage("OnHit", 9999, SendMessageOptions.DontRequireReceiver);
             }
 
-            foreach (var bullet in FindObjectsByType<EnemyBullet>(FindObjectsSortMode.None))
+            foreach (var bullet in FindObjectsByType<EnemyBullet>())
             {
                 if (bullet == null || !bullet.gameObject.activeInHierarchy) continue;
                 if (PoolManager.Instance != null)

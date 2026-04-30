@@ -5,11 +5,6 @@ public class PlayerBulletManager : MonoBehaviour
 {
     public static PlayerBulletManager Instance { get; private set; }
 
-    [Header("Bullet Prefabs")]
-    public GameObject playerBullet01Prefab;
-    public GameObject playerBullet02Prefab;
-    public GameObject playerBullet03Prefab;
-
     [Header("Bullet Speed")]
     public float bulletSpeed = 10f;
 
@@ -26,20 +21,40 @@ public class PlayerBulletManager : MonoBehaviour
     public int bullet02DamageR = 10;
 
     [Header("Bullet 03 Damages (L / M / R)")]
-    public int bullet03DamageL = 15;
-    public int bullet03DamageM = 20;
-    public int bullet03DamageR = 15;
+    public int bullet03DamageL  = 15;
+    public int bullet03DamageM  = 20;
+    public int bullet03DamageR  = 15;
+
+    [Header("Bullet 03 Source (PlayerBullet_03 프리팹 할당 → M 자식에서 파란 스프라이트 자동 추출)")]
+    public GameObject playerBullet03Prefab;
+
+    // 런타임에서 M 자식으로부터 자동 추출됨 (직접 할당도 가능)
+    public Sprite bullet03CenterSprite;
 
     public Action<Vector2> OnBulletFired;
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        ExtractCenterSprite();
+    }
+
+    // PlayerBullet_03.prefab 의 M 자식 SpriteRenderer 에서 파란 스프라이트 추출
+    private void ExtractCenterSprite()
+    {
+        if (bullet03CenterSprite != null) return;   // 이미 할당된 경우 스킵
+        if (playerBullet03Prefab == null) return;
+
+        foreach (Transform child in playerBullet03Prefab.transform)
+        {
+            string upper = child.name.ToUpper();
+            if (upper == "M" || upper.EndsWith("_M"))
+            {
+                var sr = child.GetComponent<SpriteRenderer>();
+                if (sr != null) { bullet03CenterSprite = sr.sprite; return; }
+            }
+        }
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -52,116 +67,57 @@ public class PlayerBulletManager : MonoBehaviour
         }
     }
 
-    // Player.power를 직접 읽어서 총알 결정
-    // power 0 → PlayerBullet_01
-    // power 1 (아이템 1개) → PlayerBullet_02
-    // power 2+ (아이템 2개) → PlayerBullet_03
+    // power 0 → 1발 (기본)
+    // power 1 → 3발 L/M/R (기본 스프라이트)
+    // power 2 → 3발 L/M/R (좌·우 기본, 가운데 파란 스프라이트)
     public void Fire(Vector2 position)
     {
-        int powerLevel = Player.Instance != null ? Mathf.Clamp(Player.Instance.power, 0, 2) : 0;
+        int power = Player.Instance != null ? Mathf.Clamp(Player.Instance.power, 0, 2) : 0;
 
-        if (powerLevel >= 2 && CanFireMulti(3))
-            FireMulti(position, 3);
-        else if (powerLevel >= 1 && CanFireMulti(2))
-            FireMulti(position, 2);
-        else
-            FireSingle(position);
+        switch (power)
+        {
+            case 2:  FireLevel3(position); break;
+            case 1:  FireLevel2(position); break;
+            default: SpawnBullet(position, bullet01Damage); break;
+        }
 
         OnBulletFired?.Invoke(position);
     }
 
-    public void FireSingleAt(Vector2 position)
+    public void FireSingleAt(Vector2 position) => SpawnBullet(position, bullet01Damage);
+
+    // 2단계: 기본 총알 3발
+    private void FireLevel2(Vector2 position)
     {
-        FireSingle(position);
+        SpawnBullet(position + new Vector2(-spacing, 0f),           bullet02DamageL);
+        SpawnBullet(position + new Vector2(0f, midForwardOffset),   bullet02DamageM);
+        SpawnBullet(position + new Vector2(spacing,  0f),           bullet02DamageR);
     }
 
-    private bool CanFireMulti(int level)
+    // 3단계: 좌·우 기본 총알, 가운데 파란 총알
+    private void FireLevel3(Vector2 position)
     {
-        if (level == 2)
-            return playerBullet02Prefab != null ||
-                   (PoolManager.Instance != null && PoolManager.Instance.playerBullet02Prefab != null);
-        if (level == 3)
-            return playerBullet03Prefab != null ||
-                   (PoolManager.Instance != null && PoolManager.Instance.playerBullet03Prefab != null);
-        return false;
+        SpawnBullet(position + new Vector2(-spacing, 0f),           bullet03DamageL);
+        SpawnBullet(position + new Vector2(0f, midForwardOffset),   bullet03DamageM, bullet03CenterSprite);
+        SpawnBullet(position + new Vector2(spacing,  0f),           bullet03DamageR);
     }
 
-    private void FireSingle(Vector2 position)
+    private void SpawnBullet(Vector2 position, int damage, Sprite overrideSprite = null)
     {
-        GameObject bullet = PoolManager.Instance != null
-            ? PoolManager.Instance.GetPlayerBullet01()
-            : null;
-
-        // 풀이 비어있으면 직접 생성
-        if (bullet == null && playerBullet01Prefab != null)
-            bullet = Instantiate(playerBullet01Prefab, position, Quaternion.identity);
-
+        if (PoolManager.Instance == null) return;
+        GameObject bullet = PoolManager.Instance.GetPlayerBullet01();
         if (bullet == null) return;
 
         PlayerBullet pb = bullet.GetComponent<PlayerBullet>();
         if (pb != null)
         {
-            pb.damage = bullet01Damage;
-            pb.speed = bulletSpeed;
+            pb.damage = damage;
+            pb.speed  = bulletSpeed;
+            if (overrideSprite != null)
+                pb.SetSprite(overrideSprite);
         }
 
         bullet.transform.position = position;
         bullet.SetActive(true);
-    }
-
-    private void FireMulti(Vector2 position, int level)
-    {
-        GameObject container = null;
-
-        if (PoolManager.Instance != null)
-        {
-            container = level == 2
-                ? PoolManager.Instance.GetPlayerBullet02()
-                : PoolManager.Instance.GetPlayerBullet03();
-        }
-
-        // 풀이 비어있으면 직접 생성
-        if (container == null)
-        {
-            GameObject prefab = level == 2 ? playerBullet02Prefab : playerBullet03Prefab;
-            if (prefab != null)
-                container = Instantiate(prefab, position, Quaternion.identity);
-        }
-
-        if (container == null) return;
-
-        PlayerBulletContainer pbc = container.GetComponent<PlayerBulletContainer>();
-        if (pbc != null) pbc.speed = bulletSpeed;
-
-        SetupChild(container, "L", new Vector3(-spacing, 0f, 0f),
-            level == 2 ? bullet02DamageL : bullet03DamageL);
-        SetupChild(container, "M", new Vector3(0f, midForwardOffset, 0f),
-            level == 2 ? bullet02DamageM : bullet03DamageM);
-        SetupChild(container, "R", new Vector3(spacing, 0f, 0f),
-            level == 2 ? bullet02DamageR : bullet03DamageR);
-
-        container.transform.position = position;
-        container.SetActive(true);
-    }
-
-    private void SetupChild(GameObject container, string suffix, Vector3 localPos, int damage)
-    {
-        Transform found = null;
-        foreach (Transform child in container.transform)
-        {
-            // "L" 또는 "_L" 로 끝나는 이름 모두 허용 (예: L, PlayerBullet_02_L)
-            string upper = child.name.ToUpper();
-            if (upper == suffix || upper.EndsWith("_" + suffix))
-            {
-                found = child;
-                break;
-            }
-        }
-        if (found == null) return;
-
-        found.localPosition = localPos;
-
-        PlayerBulletChild pbc = found.GetComponent<PlayerBulletChild>();
-        if (pbc != null) pbc.damage = damage;
     }
 }

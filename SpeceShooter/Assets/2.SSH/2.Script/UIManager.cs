@@ -20,9 +20,6 @@ public class UIManager : MonoBehaviour
     // 점수 텍스트
     public TextMeshProUGUI scoreText;
 
-    [Header("Item Prefabs")]
-    public GameObject[] itemPrefabs; // 0: Coin, 1: Power, 2: Boom
- 
     // 붐 이미지 배열 (BoomImage_0, BoomImage_1, BoomImage_2)
     public Image[] boomImages;
     private const int MaxBoomCount = 3;
@@ -118,6 +115,9 @@ public class UIManager : MonoBehaviour
     {
         if (playerGo == null) return;
 
+        Player player = playerGo.GetComponent<Player>();
+        if (player != null && player.IsInvincible) return;
+
         int appliedDamage = Mathf.Max(1, damageAmount);
         bool isGameOver = false;
         for (int i = 0; i < appliedDamage; i++)
@@ -126,7 +126,6 @@ public class UIManager : MonoBehaviour
             if (isGameOver) break;
         }
 
-        Player player = playerGo.GetComponent<Player>();
         if (player != null)
         {
             player.life = Mathf.Max(0, player.life - appliedDamage);
@@ -151,6 +150,9 @@ public class UIManager : MonoBehaviour
 
         playerGo.transform.position = respawnPosition;
         playerGo.SetActive(true);
+
+        Player player = playerGo.GetComponent<Player>();
+        player?.ActivateRespawnInvincibility(2f);
     }
 
     // Retry 버튼 클릭 시 현재 씬 재시작
@@ -181,30 +183,22 @@ public class UIManager : MonoBehaviour
     }
     public void CreateItem(Vector3 pos)
     {
-        if (itemPrefabs == null || itemPrefabs.Length < 3)
-            return;
+        if (PoolManager.Instance == null) return;
 
-        // 0~9 랜덤 (0~2: None 30%, 3~5: Coin 30%, 6~7: Power 20%, 8~9: Boom 20%)
+        // None 30% / Coin 30% / Power 30% / Boom 10%
         int rand = Random.Range(0, 10);
+        if (rand < 3) return;
 
-        GameObject prefab = null;
+        GameObject item = null;
+        if (rand < 6)      item = PoolManager.Instance.GetCoinItem();
+        else if (rand < 9) item = PoolManager.Instance.GetPowerItem();
+        else               item = PoolManager.Instance.GetBoomItem();
 
-        if (rand >= 3 && rand <= 5)
-            prefab = itemPrefabs[0]; // Coin
-        else if (rand >= 6 && rand <= 7)
-            prefab = itemPrefabs[1]; // Power
-        else if (rand >= 8 && rand <= 9)
-            prefab = itemPrefabs[2]; // Boom
-        else
-            return; // None = 아이템 안 나옴
+        if (item == null) return;
 
-        if (prefab == null)
-            return;
-
-        GameObject go = Instantiate(prefab, pos, Quaternion.identity);
-        Item item = go.GetComponent<Item>();
-        if (item != null)
-            item.BeginMove();
+        item.transform.position = pos;
+        item.SetActive(true);
+        item.GetComponent<Item>()?.BeginMove();
     }
     
     // 점수 직접 추가

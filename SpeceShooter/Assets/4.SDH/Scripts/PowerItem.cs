@@ -1,23 +1,46 @@
 using UnityEngine;
+using System.Collections;
 
 public class PowerItem : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 2f;
 
-    void Update()
+    private Camera cachedCamera;
+
+    void OnEnable()
     {
-        transform.Translate(Vector2.down * moveSpeed * Time.deltaTime);
+        cachedCamera = Camera.main;
+        StartCoroutine(MoveRoutine());
+    }
 
-        Camera cam = Camera.main;
-        if (cam == null) return;
+    void OnDisable()
+    {
+        StopAllCoroutines();
+    }
 
-        Vector3 vp = cam.WorldToViewportPoint(transform.position);
-        if (vp.y < -0.1f)
+    private IEnumerator MoveRoutine()
+    {
+        while (true)
         {
-            if (PoolManager.Instance != null)
-                PoolManager.Instance.ReturnToPool(gameObject);
-            else
-                Destroy(gameObject);
+            transform.Translate(Vector2.down * moveSpeed * Time.deltaTime);
+
+            if (cachedCamera == null) cachedCamera = Camera.main;
+
+            if (cachedCamera != null)
+            {
+                if (cachedCamera.WorldToViewportPoint(transform.position).y < -0.1f)
+                {
+                    ReturnToPool();
+                    yield break;
+                }
+            }
+            else if (transform.position.y < -20f)
+            {
+                ReturnToPool();
+                yield break;
+            }
+
+            yield return null;
         }
     }
 
@@ -27,8 +50,14 @@ public class PowerItem : MonoBehaviour
 
         Player player = other.GetComponent<Player>();
         if (player != null)
-            player.power = Mathf.Min(player.power + 1, 3);
+            player.power = Mathf.Min(player.power + 1, 4);
 
+        UIManager.Instance?.AddScore(200);
+        ReturnToPool();
+    }
+
+    void ReturnToPool()
+    {
         if (PoolManager.Instance != null)
             PoolManager.Instance.ReturnToPool(gameObject);
         else

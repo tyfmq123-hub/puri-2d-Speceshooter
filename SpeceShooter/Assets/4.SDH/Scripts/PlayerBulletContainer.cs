@@ -14,7 +14,14 @@ public class PlayerBulletContainer : MonoBehaviour
 
     void Update()
     {
-        transform.Translate(Vector2.up * speed * Time.deltaTime);
+        transform.Translate(Vector2.up * speed * Time.deltaTime, Space.World);
+
+        // 자식이 모두 비활성(적 피격)이면 즉시 풀 반환
+        if (AllChildrenInactive())
+        {
+            ReturnSelf();
+            return;
+        }
 
         if (cachedCamera == null) cachedCamera = Camera.main;
 
@@ -28,6 +35,16 @@ public class PlayerBulletContainer : MonoBehaviour
         {
             ReturnSelf();
         }
+    }
+
+    private bool AllChildrenInactive()
+    {
+        if (transform.childCount == 0) return false;
+        foreach (Transform child in transform)
+        {
+            if (child.gameObject.activeSelf) return false;
+        }
+        return true;
     }
 
     private void ReturnSelf()

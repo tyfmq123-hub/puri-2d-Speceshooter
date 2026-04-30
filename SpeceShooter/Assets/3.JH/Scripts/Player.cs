@@ -48,12 +48,11 @@ public class Player : MonoBehaviour
     private float lastAttackTime;
     private int moveStateHash;
     private int previousLife;
-    private States previousState;
-    private bool deathLogged;
     private bool deathHandled;
     private Vector3 initialSpawnPosition;
     private int pendingUiDamage;
     private float hitStateEndTime;
+    private float respawnInvincibleEndTime;
     private Coroutine fireCoroutine;
     private readonly List<Follower> followers = new List<Follower>();
     private int syncedFollowerCount = -1;
@@ -76,10 +75,7 @@ public class Player : MonoBehaviour
         lastAttackTime = -attackCooldown;
         moveStateHash = Animator.StringToHash(MoveStateParam);
         previousLife = life;
-        previousState = state;
         initialSpawnPosition = transform.position;
-        Debug.Log($"[Player] Life initialized: {life}", this);
-        Debug.Log($"[Player] State initialized: {state}", this);
         positionHistory.Add(transform.position);
         SyncFollowerCount();
     }
@@ -91,9 +87,19 @@ public class Player : MonoBehaviour
         return respawnPoint != null ? respawnPoint.position : transform.position;
     }
 
+    public bool IsInvincible =>
+        state == States.Dead ||
+        (state == States.Hit && Time.time < hitStateEndTime) ||
+        Time.time < respawnInvincibleEndTime;
+
+    public void ActivateRespawnInvincibility(float duration)
+    {
+        respawnInvincibleEndTime = Time.time + duration;
+    }
+
     public void TakeDamage(int amount)
     {
-        if (state == States.Dead || IsHitInvincible())
+        if (IsInvincible)
         {
             return;
         }
@@ -137,14 +143,10 @@ public class Player : MonoBehaviour
         {
             int oldLife = previousLife;
             int newLife = life;
-            Debug.Log($"[Player] Life changed: {previousLife} -> {life}", this);
             previousLife = newLife;
-            deathLogged = false;
 
             if (newLife < oldLife)
-            {
                 HandleLifeReduced(oldLife - newLife);
-            }
         }
 
         if (life <= 0)
@@ -164,10 +166,8 @@ public class Player : MonoBehaviour
         HandleMovement();
         RecordPositionHistory();
         HandleAttack();
-        HandleBoom();
         SyncFollowerCount();
         UpdateAnimation();
-        LogStateChanged();
     }
 
     private void HandleLifeReduced(int damageAmount)
@@ -215,39 +215,16 @@ public class Player : MonoBehaviour
 
     private void HandleDeath()
     {
-        if (!deathLogged)
-        {
-            Debug.Log("[Player] Life reached 0. State changed to Dead.", this);
-            deathLogged = true;
-        }
-
         state = States.Dead;
-        LogStateChanged();
 
-        if (deathHandled)
-        {
-            return;
-        }
+        if (deathHandled) return;
 
         deathHandled = true;
         RemoveAllFollowers();
         hitStateEndTime = 0f;
 
         if (gameObject.activeSelf)
-        {
             gameObject.SetActive(false);
-        }
-    }
-
-    private void LogStateChanged()
-    {
-        if (state == previousState)
-        {
-            return;
-        }
-
-        Debug.Log($"[Player] State changed: {previousState} -> {state}", this);
-        previousState = state;
     }
 
     private void SyncFollowerCount()
@@ -261,6 +238,12 @@ public class Player : MonoBehaviour
         }
 
         followers.RemoveAll(follower => follower == null);
+
+        if (followers.Count == desiredCount)
+        {
+            syncedFollowerCount = desiredCount;
+            return;
+        }
 
         Transform root = followerRoot;
         if (root != null && !root.gameObject.scene.IsValid())
@@ -390,11 +373,11 @@ public class Player : MonoBehaviour
         transform.position += (Vector3)(moveInput * moveSpeed * Time.deltaTime);
     }
 
-    private void HandleBoom()
-      {
-        if (Input.GetKeyDown(KeyCode.Z))
-            BoomManager.Instance?.UseBoom();
-      }
+    //private void HandleBoom()
+   // {
+       // if (Input.GetKeyDown(KeyCode.Z))
+            //BoomManager.Instance?.UseBoom();
+    //}
 
     private void HandleAttack()
     {

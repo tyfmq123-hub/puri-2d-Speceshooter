@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 
 public class Follower : MonoBehaviour
 {
@@ -8,11 +7,6 @@ public class Follower : MonoBehaviour
     [SerializeField] private float followDistance = 1.2f;
     [SerializeField] private int followerIndex;
 
-    [Header("Attack")]
-    [SerializeField] private float attackCooldown = 2f;
-
-    private bool isWaiting = false;
-
     public void SetFollowerIndex(int index)
     {
         followerIndex = index;
@@ -20,39 +14,36 @@ public class Follower : MonoBehaviour
 
     public void Fire()
     {
-        if (isWaiting) return;
-        StartCoroutine(FireRoutine());
-    }
-
-    private IEnumerator FireRoutine()
-    {
-        isWaiting = true;
         SpawnBullet();
-        yield return new WaitForSeconds(attackCooldown);
-        isWaiting = false;
     }
 
     private void SpawnBullet()
     {
-        if (PoolManager.Instance != null)
+        if (PoolManager.Instance == null) return;
+
+        GameObject bullet = PoolManager.Instance.GetPlayerBullet01();
+        if (bullet == null) return;
+
+        PlayerBullet pb = bullet.GetComponent<PlayerBullet>();
+        if (pb != null)
         {
-            GameObject bullet = PoolManager.Instance.GetPlayerBullet01();
-            if (bullet != null)
+            pb.speed = PlayerBulletManager.Instance != null ? PlayerBulletManager.Instance.bulletSpeed : 10f;
+            pb.damage = PlayerBulletManager.Instance != null ? PlayerBulletManager.Instance.bullet01Damage : 10;
+
+            if (Player.Instance != null && Player.Instance.power >= 4)
             {
-                bullet.transform.position = transform.position;
-                bullet.transform.rotation = Quaternion.identity;
-
-                PlayerBullet pb = bullet.GetComponent<PlayerBullet>();
-                if (pb != null && PlayerBulletManager.Instance != null)
-                    pb.speed = PlayerBulletManager.Instance.bulletSpeed;
-
-                bullet.SetActive(true);
-                return;
+                Sprite blue = PlayerBulletManager.Instance?.bullet03CenterSprite;
+                if (blue != null)
+                {
+                    pb.SetSprite(blue);
+                    pb.damage = 20;
+                }
             }
         }
 
-        // 풀 없으면 PlayerBulletManager 단발 발사 위임
-        PlayerBulletManager.Instance?.FireSingleAt((Vector2)transform.position);
+        bullet.transform.position = transform.position;
+        bullet.transform.rotation = Quaternion.identity;
+        bullet.SetActive(true);
     }
 
     void Update()

@@ -1,52 +1,38 @@
 using UnityEngine;
+using System.Collections;
 
 public class PooledEnemy : MonoBehaviour
 {
-    private int initialHealth;
-    private Sprite initialSprite;
-
-    void Awake()
-    {
-        Enemy enemy = GetComponent<Enemy>();
-        if (enemy == null) return;
-
-        initialHealth = enemy.health;
-
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (sr != null) initialSprite = sr.sprite;
-    }
+    private Camera cachedCamera;
 
     void OnEnable()
     {
-        Enemy enemy = GetComponent<Enemy>();
-        if (enemy == null) return;
-
-        enemy.health = initialHealth;
-
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (sr != null && initialSprite != null)
-            sr.sprite = initialSprite;
+        cachedCamera = Camera.main;
+        StartCoroutine(BoundsCheckRoutine());
     }
 
     void OnDisable()
     {
-        // Enemy.cs에서 예약된 Invoke(ReturnSprite 등) 취소
-        Enemy enemy = GetComponent<Enemy>();
-        if (enemy != null) enemy.CancelInvoke();
+        StopAllCoroutines();
     }
 
-    void Update()
+    private IEnumerator BoundsCheckRoutine()
     {
-        Camera cam = Camera.main;
-        if (cam == null) return;
-
-        Vector3 viewPos = cam.WorldToViewportPoint(transform.position);
-        if (viewPos.y < -0.1f)
+        while (true)
         {
-            if (PoolManager.Instance != null)
-                PoolManager.Instance.ReturnToPool(gameObject);
-            else
-                Destroy(gameObject);
+            yield return new WaitForSeconds(0.2f);
+
+            if (cachedCamera == null) cachedCamera = Camera.main;
+            if (cachedCamera == null) continue;
+
+            if (cachedCamera.WorldToViewportPoint(transform.position).y < -0.1f)
+            {
+                if (PoolManager.Instance != null)
+                    PoolManager.Instance.ReturnToPool(gameObject);
+                else
+                    Destroy(gameObject);
+                yield break;
+            }
         }
     }
 }

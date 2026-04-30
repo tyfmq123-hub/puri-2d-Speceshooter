@@ -36,6 +36,8 @@ public class EnemyBullet : MonoBehaviour
         if (!other.CompareTag("Player")) return;
 
         Player player = other.GetComponent<Player>();
+        if (player != null && player.IsInvincible) return;
+
         if (player != null)
         {
             if (UIManager.Instance != null)
