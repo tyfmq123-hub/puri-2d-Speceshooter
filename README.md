@@ -15,6 +15,137 @@ Unity 2D 세로형 슈팅 게임 팀 프로젝트
 
 ---
 
+## 세션 로그 · 2026-04-30 (10:00 ~)
+
+> Push / Pull 흐름 및 폴더 간 교차 작업 기록
+
+---
+
+### 10:18 — JSR push
+
+| 파일 | 내용 |
+|---|---|
+| `1.Jsr/Script/Enemy.cs` | Enemy A 이동 방향 반전 플래그(`invertFacingForEnemyA`) 추가 |
+| `4.SDH/Scripts/CreateEnemyManager.cs` | **JSR → SDH 폴더** 수정 — 대각선 스폰 EndPoint 검색 버그 수정 (`FindEndPoint`) |
+| `3.JH/Scripts/Player.cs` | **JSR → JH 폴더** 수정 — HandleBoom(Z키) 재활성화 |
+| `3.JH/Prefab/Player.prefab.meta` | **JSR → JH 폴더** 프리팹 메타 갱신 |
+| `3.JH/Prefab/FollowerPrefab.prefab.meta` | **JSR → JH 폴더** 프리팹 메타 갱신 |
+| `4.SDH/CODING_RULES.md.meta` | 메타 파일 추가 |
+
+---
+
+### 10:29 — SDH push (전체 동기화)
+
+| 파일 | 내용 |
+|---|---|
+| `4.SDH/Scripts/BoomManager.cs` | BoomManager.Update()에서 Z키 직접 처리, Boom 2초 반복 실행 |
+| `4.SDH/Scripts/PoolManager.cs` | 싱글톤 보호, 풀링 구조 정비 |
+| `4.SDH/Scripts/PlayerBullet.cs` | PlayerBulletContainer 방식 제거 → 독립 총알로 분리 |
+| `4.SDH/Scripts/CreateEnemyManager.cs` | 싱글톤 보호 추가 |
+| `4.SDH/Prefabs/BoomManager.prefab` | 프리팹 갱신 |
+| `4.SDH/Scenes/MainScene_00.unity` | 씬 갱신 |
+| `2.SSH/2.Script/Item.cs` | **SDH → SSH 폴더** 수정 — `Update()` → 코루틴 `MoveRoutine()` 전환 |
+| `2.SSH/2.Script/UIManager.cs` | **SDH → SSH 폴더** 수정 — 미사용 `itemPrefabs` 필드 제거 |
+| `2.SSH/3.Animation/Boom-1.anim` | **SDH → SSH 폴더** 수정 — Boom 애니메이션 키프레임 수정 |
+| `2.SSH/5.Prefab/Boom-1.prefab` | **SDH → SSH 폴더** 프리팹 갱신 |
+| `3.JH/Scripts/Player.cs` | **SDH → JH 폴더** 수정 — Debug.Log 제거, SyncFollowerCount 최적화 |
+| `3.JH/Scripts/Follower.cs` | **SDH → JH 폴더** 수정 — attackCooldown / FireRoutine 제거, 즉시 발사 전환 |
+
+---
+
+### 10:34 — SDH push
+
+| 파일 | 내용 |
+|---|---|
+| `README.md` | 작업 이력 최초 작성 및 JSR 섹션 추가 |
+
+---
+
+### 12:02 — JSR push
+
+| 파일 | 내용 |
+|---|---|
+| `1.Jsr/Script/Enemy.cs` | Enemy A·C 스프라이트 페이싱 180° 반전 수정 |
+
+---
+
+### 12:03 — JH push
+
+| 파일 | 내용 |
+|---|---|
+| `3.JH/Scripts/DataManager.cs` | **신규** — `stage_data.json` 읽어 스폰 이벤트 순차 실행 |
+| `3.JH/Scripts/StageData.cs` | **신규** — JSON 역직렬화용 데이터 구조 (`delay`, `type`, `point`) |
+| `3.JH/TestScene/JH_Scene.unity` | 테스트씬 이름 변경 (`JHScene` → `JH_Scene`) 및 갱신 |
+| `3.JH/Prefab/Player.prefab` | 플레이어 프리팹 갱신 |
+
+---
+
+### 12:11 — SDH push
+
+| 파일 | 내용 |
+|---|---|
+| `4.SDH/Animations/Boss.controller` | **신규** — 보스 애니메이터 컨트롤러 |
+| `4.SDH/Animations/Boss_Idle.anim` | **신규** — 보스 Idle 애니메이션 |
+| `4.SDH/Animations/Boss_Hit.anim` | **신규** — 보스 피격 애니메이션 |
+| `4.SDH/Prefabs/Boss.prefab` | **신규** — 보스 프리팹 |
+| `4.SDH/Scenes/MainScene_00.unity` | 씬 갱신 |
+
+---
+
+### 12:21 — JSR push
+
+| 파일 | 내용 |
+|---|---|
+| `1.Jsr/Script/BoosBullet.cs` | **신규** — 보스 총알 이동 및 플레이어 충돌 처리 스크립트 |
+
+---
+
+### 12:29 — JSR push
+
+| 파일 | 내용 |
+|---|---|
+| `1.Jsr/Prefeb/Boos Bullet 1.prefab` | **신규** — 보스 총알 1 프리팹 |
+| `1.Jsr/Prefeb/Boos Bullet 2.prefab` | **신규** — 보스 총알 2 프리팹 |
+
+---
+
+### 12:29 — SDH push
+
+| 파일 | 내용 |
+|---|---|
+| `4.SDH/Scripts/PoolManager.cs` | Boss 풀 슬롯 추가 (`bossPrefab`, `bossCount`, `GetBoss()`) |
+| `4.SDH/Prefabs/PoolManager.prefab` | **SDH → JH 연동** — PoolManager 프리팹에 DataManager 슬롯 반영 |
+| `3.JH/Prefab/DataManager.prefab` | **SDH → JH 폴더** 추가 — DataManager 프리팹 생성 및 PoolManager에 부착 |
+| `3.JH/TestScene/JH_Scene.unity` | **SDH → JH 폴더** 씬 갱신 |
+| `Assets/Resources/stage_data.json` | **신규** — 스테이지 스폰 데이터 JSON |
+
+---
+
+### 12:44 — JH push
+
+| 파일 | 내용 |
+|---|---|
+| `3.JH/Scripts/Player.cs` | 플레이어 동작 수정 |
+| `3.JH/Prefab/Player.prefab` | 프리팹 갱신 |
+
+---
+
+### 12:47 — JH push
+
+| 파일 | 내용 |
+|---|---|
+| `Assets/Resources/stage_data.json` | 스테이지 데이터 내용 수정 |
+
+---
+
+### 12:47 — SDH push
+
+| 파일 | 내용 |
+|---|---|
+| `4.SDH/Scenes/MainScene_00.unity` | 씬 최종 갱신 |
+
+---
+
 ## 작업 이력
 
 ---
