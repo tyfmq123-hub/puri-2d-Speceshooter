@@ -17,7 +17,9 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float enemyCSpeed = 1.6f;
     [SerializeField] private bool rotateToMoveDirection = true;
     [SerializeField] private float rotationOffset = -90f;
+    [SerializeField] private bool invertFacingForEnemyA = true;
     [SerializeField] private bool invertFacingForEnemyB = true;
+    [SerializeField] private bool invertFacingForEnemyC = true;
 
     [Header("Enemy C Attack")]
     [SerializeField] private GameObject enemyBulletPrefab;
@@ -118,7 +120,9 @@ public class Enemy : MonoBehaviour
         if (alignRotation && rotateToMoveDirection)
         {
             float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg + rotationOffset;
+            if (invertFacingForEnemyA && enemyType == EnemyType.A) angle += 180f;
             if (invertFacingForEnemyB && enemyType == EnemyType.B) angle += 180f;
+            if (invertFacingForEnemyC && enemyType == EnemyType.C) angle += 180f;
             angle += extraRotation;
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
         }
