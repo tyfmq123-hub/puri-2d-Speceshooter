@@ -112,9 +112,7 @@ public class Player : MonoBehaviour
         }
 
         if (UIManager.Instance != null)
-        {
-            UIManager.Instance.ApplyPlayerDamage(this, amount);
-        }
+            UIManager.Instance.HandlePlayerHit(gameObject, GetRespawnPosition(), RespawnDelay, amount);
     }
 
     public void ApplyDamageFeedback(bool survived)
