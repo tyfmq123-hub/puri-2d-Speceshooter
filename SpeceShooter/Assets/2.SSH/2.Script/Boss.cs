@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Boss : MonoBehaviour
+public class BossController : MonoBehaviour
 {
     //#. 보스 상태 종류
     enum BossState
