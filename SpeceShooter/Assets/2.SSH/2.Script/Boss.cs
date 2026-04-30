@@ -24,6 +24,8 @@ public class BossController : MonoBehaviour
     //#. 컴포넌트
     private Animator anim;
     private Transform player;
+    [Header("Boss Enemy Type Sync")]
+    [SerializeField] private Enemy bossEnemyComponent;
 
     //#. 체력
     [Header("Health Settings")]
@@ -73,6 +75,8 @@ public class BossController : MonoBehaviour
 
     void Start()
     {
+        SyncBossEnemyType();
+
         //#. 체력 초기화
         health = maxHealth;
 
@@ -97,6 +101,17 @@ public class BossController : MonoBehaviour
         
         //#. 스프라이트 렌더러 초기화
         sr = GetComponent<SpriteRenderer>();
+    }
+
+    private void SyncBossEnemyType()
+    {
+        if (bossEnemyComponent == null)
+            bossEnemyComponent = GetComponent<Enemy>();
+
+        if (bossEnemyComponent == null)
+            bossEnemyComponent = gameObject.AddComponent<Enemy>();
+
+        bossEnemyComponent.enemyType = Enemy.EnemyType.D;
     }
 
     void Update()
@@ -157,7 +172,7 @@ public class BossController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         //#. 이미 죽은 상태면 무시
-        if (isDead)
+        if (isDead || !isActiveAndEnabled)
             return;
 
         //#. 체력 감소
@@ -186,6 +201,9 @@ public class BossController : MonoBehaviour
 
         hitSpriteLockUntil = Time.time + hitSpriteRecoverDelay;
         sr.sprite = sprites[1];
+
+        if (!isActiveAndEnabled)
+            return;
 
         if (restoreSpriteRoutine != null)
             StopCoroutine(restoreSpriteRoutine);
@@ -227,7 +245,7 @@ public class BossController : MonoBehaviour
 
     private void TryHandlePlayerBulletHit(GameObject hitObject)
     {
-        if (hitObject == null || isDead)
+        if (hitObject == null || isDead || !isActiveAndEnabled)
         {
             return;
         }
@@ -515,6 +533,14 @@ public class BossController : MonoBehaviour
     {
         //#. 비활성화 로그
         Debug.Log("[Boss] 비활성화");
+
+        if (restoreSpriteRoutine != null)
+        {
+            StopCoroutine(restoreSpriteRoutine);
+            restoreSpriteRoutine = null;
+        }
+        hitSpriteLockUntil = -1f;
+        hitSpriteForced = false;
 
         //#. 보스 오브젝트 비활성화
         gameObject.SetActive(false);

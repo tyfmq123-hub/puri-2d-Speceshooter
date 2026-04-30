@@ -8,7 +8,7 @@ public class Enemy : MonoBehaviour
     private const string BorderBulletTag = "BorderBullet";
     private const string EnemyCTag = "EnemyC";
 
-    public enum EnemyType { A, B, C }
+    public enum EnemyType { A, B, C, D }
 
     [Header("Enemy Settings")]
     public EnemyType enemyType;
@@ -19,6 +19,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float enemyASpeed = 2f;
     [SerializeField] private float enemyBSpeed = 2.5f;
     [SerializeField] private float enemyCSpeed = 1.6f;
+    [SerializeField] private float enemyDSpeed = 1.2f;
     [SerializeField] private bool rotateToMoveDirection = true;
     [SerializeField] private float rotationOffset = -90f;
     [SerializeField] private bool invertFacingForEnemyA = true;
@@ -104,6 +105,7 @@ public class Enemy : MonoBehaviour
             case EnemyType.A: speed = enemyASpeed; break;
             case EnemyType.B: speed = enemyBSpeed; break;
             case EnemyType.C: speed = enemyCSpeed; break;
+            case EnemyType.D: speed = enemyDSpeed; break;
         }
     }
 
@@ -114,6 +116,7 @@ public class Enemy : MonoBehaviour
             case EnemyType.A: health = 30;  break;
             case EnemyType.B: health = 100; break;
             case EnemyType.C: health = 150; break;
+            case EnemyType.D: health = 300; break;
         }
     }
 
