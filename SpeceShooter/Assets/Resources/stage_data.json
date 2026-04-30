@@ -1,0 +1,142 @@
+{
+  "waves": [
+    {
+      "enemies": [
+        { "delay": 1.5, "enemyType": 0, "point": 2 },
+        { "delay": 0.8, "enemyType": 0, "point": 0 },
+        { "delay": 0.8, "enemyType": 0, "point": 4 },
+        { "delay": 0.8, "enemyType": 0, "point": 1 }
+      ]
+    },
+    {
+      "enemies": [
+        { "delay": 1.0, "enemyType": 0, "point": 0 },
+        { "delay": 0.7, "enemyType": 1, "point": 2 },
+        { "delay": 0.7, "enemyType": 0, "point": 4 },
+        { "delay": 0.7, "enemyType": 1, "point": 1 },
+        { "delay": 0.7, "enemyType": 0, "point": 3 }
+      ]
+    },
+    {
+      "enemies": [
+        { "delay": 1.0, "enemyType": 1, "point": 2 },
+        { "delay": 0.5, "enemyType": 0, "point": 5 },
+        { "delay": 0.5, "enemyType": 1, "point": 0 },
+        { "delay": 0.5, "enemyType": 2, "point": 2 },
+        { "delay": 0.5, "enemyType": 0, "point": 6 },
+        { "delay": 0.5, "enemyType": 1, "point": 4 },
+        { "delay": 0.5, "enemyType": 0, "point": 3 }
+      ]
+    },
+    {
+      "enemies": [
+        { "delay": 0.8, "enemyType": 2, "point": 2 },
+        { "delay": 0.4, "enemyType": 1, "point": 5 },
+        { "delay": 0.4, "enemyType": 2, "point": 0 },
+        { "delay": 0.4, "enemyType": 1, "point": 7 },
+        { "delay": 0.4, "enemyType": 2, "point": 4 },
+        { "delay": 0.4, "enemyType": 0, "point": 6 },
+        { "delay": 0.4, "enemyType": 1, "point": 2 },
+        { "delay": 0.4, "enemyType": 2, "point": 8 },
+        { "delay": 0.4, "enemyType": 0, "point": 1 }
+      ]
+    },
+    {
+      "enemies": [
+        { "delay": 0.5, "enemyType": 2, "point": 0 },
+        { "delay": 0.3, "enemyType": 2, "point": 4 },
+        { "delay": 0.3, "enemyType": 1, "point": 5 },
+        { "delay": 0.3, "enemyType": 2, "point": 2 },
+        { "delay": 0.3, "enemyType": 0, "point": 7 },
+        { "delay": 0.3, "enemyType": 2, "point": 1 },
+        { "delay": 0.3, "enemyType": 1, "point": 6 },
+        { "delay": 0.3, "enemyType": 2, "point": 3 },
+        { "delay": 0.3, "enemyType": 0, "point": 8 },
+        { "delay": 0.3, "enemyType": 2, "point": 2 }
+      ]
+    },
+    {
+      "enemies": [
+        { "delay": 0.4, "enemyType": 2, "point": 2 },
+        { "delay": 0.25, "enemyType": 2, "point": 5 },
+        { "delay": 0.25, "enemyType": 1, "point": 0 },
+        { "delay": 0.25, "enemyType": 2, "point": 7 },
+        { "delay": 0.25, "enemyType": 2, "point": 4 },
+        { "delay": 0.25, "enemyType": 1, "point": 6 },
+        { "delay": 0.25, "enemyType": 2, "point": 1 },
+        { "delay": 0.25, "enemyType": 2, "point": 8 },
+        { "delay": 0.25, "enemyType": 1, "point": 3 },
+        { "delay": 0.25, "enemyType": 2, "point": 2 },
+        { "delay": 0.25, "enemyType": 0, "point": 5 }
+      ]
+    },
+    {
+      "enemies": [
+        { "delay": 0.4, "enemyType": 2, "point": 0 },
+        { "delay": 0.25, "enemyType": 2, "point": 6 },
+        { "delay": 0.25, "enemyType": 2, "point": 2 },
+        { "delay": 0.25, "enemyType": 1, "point": 7 },
+        { "delay": 0.25, "enemyType": 2, "point": 4 },
+        { "delay": 0.25, "enemyType": 2, "point": 5 },
+        { "delay": 0.25, "enemyType": 1, "point": 1 },
+        { "delay": 0.25, "enemyType": 2, "point": 8 },
+        { "delay": 0.25, "enemyType": 2, "point": 3 },
+        { "delay": 0.25, "enemyType": 1, "point": 6 },
+        { "delay": 0.25, "enemyType": 2, "point": 2 },
+        { "delay": 0.25, "enemyType": 0, "point": 0 }
+      ]
+    },
+    {
+      "enemies": [
+        { "delay": 0.3, "enemyType": 2, "point": 5 },
+        { "delay": 0.2, "enemyType": 2, "point": 6 },
+        { "delay": 0.2, "enemyType": 2, "point": 0 },
+        { "delay": 0.2, "enemyType": 1, "point": 2 },
+        { "delay": 0.2, "enemyType": 2, "point": 7 },
+        { "delay": 0.2, "enemyType": 2, "point": 4 },
+        { "delay": 0.2, "enemyType": 2, "point": 8 },
+        { "delay": 0.2, "enemyType": 1, "point": 1 },
+        { "delay": 0.2, "enemyType": 2, "point": 3 },
+        { "delay": 0.2, "enemyType": 2, "point": 5 },
+        { "delay": 0.2, "enemyType": 2, "point": 6 },
+        { "delay": 0.2, "enemyType": 1, "point": 2 }
+      ]
+    },
+    {
+      "enemies": [
+        { "delay": 0.3, "enemyType": 2, "point": 2 },
+        { "delay": 0.2, "enemyType": 2, "point": 5 },
+        { "delay": 0.2, "enemyType": 2, "point": 7 },
+        { "delay": 0.2, "enemyType": 2, "point": 0 },
+        { "delay": 0.2, "enemyType": 1, "point": 6 },
+        { "delay": 0.2, "enemyType": 2, "point": 4 },
+        { "delay": 0.2, "enemyType": 2, "point": 8 },
+        { "delay": 0.2, "enemyType": 2, "point": 2 },
+        { "delay": 0.2, "enemyType": 1, "point": 5 },
+        { "delay": 0.2, "enemyType": 2, "point": 1 },
+        { "delay": 0.2, "enemyType": 2, "point": 7 },
+        { "delay": 0.2, "enemyType": 2, "point": 3 },
+        { "delay": 0.2, "enemyType": 1, "point": 6 }
+      ]
+    },
+    {
+      "enemies": [
+        { "delay": 0.3, "enemyType": 2, "point": 0 },
+        { "delay": 0.15, "enemyType": 2, "point": 4 },
+        { "delay": 0.15, "enemyType": 2, "point": 5 },
+        { "delay": 0.15, "enemyType": 2, "point": 6 },
+        { "delay": 0.15, "enemyType": 1, "point": 2 },
+        { "delay": 0.15, "enemyType": 2, "point": 7 },
+        { "delay": 0.15, "enemyType": 2, "point": 8 },
+        { "delay": 0.15, "enemyType": 2, "point": 1 },
+        { "delay": 0.15, "enemyType": 1, "point": 5 },
+        { "delay": 0.15, "enemyType": 2, "point": 3 },
+        { "delay": 0.15, "enemyType": 2, "point": 6 },
+        { "delay": 0.15, "enemyType": 2, "point": 0 },
+        { "delay": 0.15, "enemyType": 1, "point": 7 },
+        { "delay": 0.15, "enemyType": 2, "point": 4 },
+        { "delay": 0.15, "enemyType": 0, "point": 2 }
+      ]
+    }
+  ]
+}
