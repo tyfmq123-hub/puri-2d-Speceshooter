@@ -19,6 +19,24 @@ Unity 2D 세로형 슈팅 게임 팀 프로젝트
 
 ---
 
+### 2026-04-30 · JSR
+
+#### 🔧 기능 수정
+
+- **Enemy A 이동 방향 반전 플래그 추가**
+  - `invertFacingForEnemyA` 필드 추가 — Enemy A가 이동 방향에 정렬될 때 +180° 반전 적용
+  - 기존 `invertFacingForEnemyB`와 동일한 방식으로 동작
+
+- **대각선 스폰 포인트 EndPoint 검색 버그 수정**
+  - `Transform.Find("EndPoint")`가 이름에 공백이 포함된 경우 매칭 실패하는 문제 수정
+  - `IsSpawnPoint7()` → `FindEndPoint()` 로 리팩터링: 이름 트리밍 + 대소문자 무시 검색
+  - 스폰 포인트 5~7의 실제 이동 방향을 올바르게 인식하도록 개선
+
+- **스폰 포인트 7 Enemy A 회전값 조정**
+  - 스폰 포인트 7 진입 시 Enemy A의 이동 방향 회전값 조정
+
+---
+
 ### 2026-04-30 · SDH
 
 #### ✅ 기능 추가
@@ -80,6 +98,10 @@ Unity 2D 세로형 슈팅 게임 팀 프로젝트
   - `Item.Update()` → 코루틴 `MoveRoutine()`
   - `PowerItem.Update()` → 코루틴 `MoveRoutine()`
   - `PooledEnemy.Update()` → 코루틴 `BoundsCheckRoutine()` (0.2초 간격)
+
+- **BoomManager Z키 처리 이전**
+  - `Player.HandleBoom()` → `BoomManager.Update()`에서 Z키 직접 감지 및 처리
+  - Boom 효과가 2초 동안 0.1초 간격으로 반복 실행 — 애니메이션 도중 스폰된 적도 제거
 
 - **Player 코드 정리**
   - 매 프레임 출력되던 `Debug.Log` 5곳 제거
