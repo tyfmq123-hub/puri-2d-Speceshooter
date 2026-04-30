@@ -477,13 +477,27 @@ public class Player : MonoBehaviour
     private void SpawnBullet()
     {
         Vector2 spawnPos = firePoint != null ? (Vector2)firePoint.position : (Vector2)transform.position;
-        PlayerBulletManager.Instance?.Fire(spawnPos);
+        FireBullets(spawnPos);
 
         foreach (var follower in followers)
         {
             if (follower != null)
                 follower.Fire();
         }
+    }
+
+    /// <summary>
+    /// Player의 현재 입력 상태와 공격 주기에 따라 탄환을 발사합니다.
+    /// BulletManager와의 상호작용은 인터페이스(Fire 메서드)만을 통합니다.
+    /// </summary>
+    private void FireBullets(Vector2 position)
+    {
+        if (PlayerBulletManager.Instance == null)
+            return;
+
+        // Player의 power 상태를 BulletManager로 전달
+        // BulletManager는 fire() 호출로 내부적으로 power 기반 로직 실행
+        PlayerBulletManager.Instance.Fire(position);
     }
 
     private void UpdateAnimation()
