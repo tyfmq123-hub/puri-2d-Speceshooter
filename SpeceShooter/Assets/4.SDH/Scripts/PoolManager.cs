@@ -117,6 +117,12 @@ public class PoolManager : MonoBehaviour
         go.transform.SetParent(transform);
     }
 
+    public static void Release(GameObject go)
+    {
+        if (Instance != null) Instance.ReturnToPool(go);
+        else Destroy(go);
+    }
+
     public GameObject GetPlayerBullet01() => GetFromPool(playerBullet01Pool, playerBullet01Prefab);
     public GameObject GetEnemyBullet()    => GetFromPool(enemyBulletPool,    enemyBulletPrefab);
     public GameObject GetEnemyA()         => GetFromEnemyPool(enemyAPool, enemyAPrefab);

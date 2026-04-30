@@ -31,10 +31,7 @@ public class PooledEnemy : MonoBehaviour
 
             if (outOfBounds)
             {
-                if (PoolManager.Instance != null)
-                    PoolManager.Instance.ReturnToPool(gameObject);
-                else
-                    Destroy(gameObject);
+                PoolManager.Release(gameObject);
                 yield break;
             }
         }

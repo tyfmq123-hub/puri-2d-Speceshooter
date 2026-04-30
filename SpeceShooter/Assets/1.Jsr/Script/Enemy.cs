@@ -298,17 +298,9 @@ public class Enemy : MonoBehaviour
         return enemyType == EnemyType.C || gameObject.CompareTag(EnemyCTag);
     }
 
-    private void ReturnEnemyToPool()
-    {
-        if (PoolManager.Instance != null) PoolManager.Instance.ReturnToPool(gameObject);
-        else Destroy(gameObject);
-    }
+    private void ReturnEnemyToPool() => PoolManager.Release(gameObject);
 
-    private void ReturnBulletToPool(GameObject bullet)
-    {
-        if (PoolManager.Instance != null) PoolManager.Instance.ReturnToPool(bullet);
-        else Destroy(bullet);
-    }
+    private void ReturnBulletToPool(GameObject bullet) => PoolManager.Release(bullet);
 
     private void TryDropItem()
     {

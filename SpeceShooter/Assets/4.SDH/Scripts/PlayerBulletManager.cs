@@ -57,16 +57,6 @@ public class PlayerBulletManager : MonoBehaviour
         }
     }
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void EnsureInstance()
-    {
-        if (Instance == null)
-        {
-            var go = new GameObject("PlayerBulletManager");
-            Instance = go.AddComponent<PlayerBulletManager>();
-        }
-    }
-
     // power 0 → 1발 (기본)
     // power 1 → 3발 L/M/R (기본 스프라이트)
     // power 2 → 3발 L/M/R (좌·우 기본, 가운데 파란 스프라이트)

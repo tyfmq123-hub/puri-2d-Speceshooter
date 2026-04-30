@@ -95,19 +95,6 @@ public class BossBullet : MonoBehaviour
         ReturnToPool();
     }
 
-    private void ReturnToPool()
-    {
-        //#. 풀 없으면 삭제
-        useRigidbody = false;
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-            rb.angularVelocity = 0f;
-        }
-        if (PoolManager.Instance != null)
-            PoolManager.Instance.ReturnToPool(gameObject);
-        else
-            Destroy(gameObject);
-    }
+    private void ReturnToPool() => PoolManager.Release(gameObject);
     
 }

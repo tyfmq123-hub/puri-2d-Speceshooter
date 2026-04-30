@@ -56,11 +56,5 @@ public class PowerItem : MonoBehaviour
         ReturnToPool();
     }
 
-    void ReturnToPool()
-    {
-        if (PoolManager.Instance != null)
-            PoolManager.Instance.ReturnToPool(gameObject);
-        else
-            Destroy(gameObject);
-    }
+    void ReturnToPool() => PoolManager.Release(gameObject);
 }
