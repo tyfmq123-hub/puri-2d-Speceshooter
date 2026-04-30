@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class BossController : MonoBehaviour
 {
@@ -16,14 +17,17 @@ public class BossController : MonoBehaviour
     //#. 이전 상태 (상태 변경 감지용)
     BossState prevState = BossState.Idle;
 
+    //#. 사망 처리 완료 여부 (중복 실행 방지)
+    private bool isDead = false;
+
     //#. 컴포넌트
     private Animator anim;
     private Transform player;
 
     //#. 체력
     [Header("Health Settings")]
-    public int maxHealth = 10;       //#. 최대 체력
-    public int health;              //#. 현재 체력
+    public int maxHealth = 10;            //#. 최대 체력
+    [SerializeField] private int health;  //#. 현재 체력 (인스펙터 확인용)
 
     //#. 총알 프리팹
     [Header("Bullet Prefabs")]
@@ -42,12 +46,12 @@ public class BossController : MonoBehaviour
 
     //#. 발사 딜레이
     [Header("Attack Settings")]
-    public float attackInterval    = 2f;    //#. 첫 공격까지 대기 시간
-    public float aroundDelay       = 0.7f;  //#. FireAround 반복 딜레이
-    public float forwardDelay      = 2f;    //#. FireForward 반복 딜레이
-    public float shotDelay         = 3.5f;  //#. FireShot 반복 딜레이
-    public float arcDelay          = 0.15f; //#. FireArc 반복 딜레이
-    public float nextPatternDelay  = 3f;    //#. 다음 패턴까지 대기 시간
+    public float attackInterval   = 2f;    //#. 첫 공격까지 대기 시간
+    public float aroundDelay      = 0.7f;  //#. FireAround 반복 딜레이
+    public float forwardDelay     = 2f;    //#. FireForward 반복 딜레이
+    public float shotDelay        = 3.5f;  //#. FireShot 반복 딜레이
+    public float arcDelay         = 0.15f; //#. FireArc 반복 딜레이
+    public float nextPatternDelay = 3f;    //#. 다음 패턴까지 대기 시간
 
     //#. 패턴 관련 변수
     private int curPatternCount = 0;                 //#. 현재 패턴 반복 횟수
@@ -62,8 +66,12 @@ public class BossController : MonoBehaviour
         //#. 컴포넌트 초기화
         anim = GetComponent<Animator>();
 
-        //#. 플레이어 위치 찾기
-        player = GameObject.FindWithTag("Player").transform;
+        //#. 플레이어 위치 찾기 (null-safe)
+        GameObject playerObj = GameObject.FindWithTag("Player");
+        if (playerObj != null)
+            player = playerObj.transform;
+        else
+            Debug.LogWarning("[Boss] Player 태그 오브젝트를 찾을 수 없습니다!");
 
         //#. 시작 상태 설정
         currentState = BossState.Idle;
@@ -71,8 +79,8 @@ public class BossController : MonoBehaviour
         //#. 시작 로그
         Debug.Log($"[Boss] 등장 / 체력: {health} / 상태: {currentState}");
 
-        //#. 첫 패턴 시작
-        Invoke("Think", attackInterval);
+        //#. 첫 패턴 딜레이 후 시작
+        StartCoroutine(DelayRoutine(attackInterval, Think));
     }
 
     void Update()
@@ -88,9 +96,30 @@ public class BossController : MonoBehaviour
         switch (currentState)
         {
             case BossState.Idle:   Idle();   break;
-            case BossState.Attack: break;    //#. 공격은 Invoke로 처리
+            case BossState.Attack: break;    //#. 공격은 Coroutine으로 처리
             case BossState.Die:    Die();    break;
         }
+    }
+
+    //#. 공통 딜레이 후 함수 실행 코루틴
+    private IEnumerator DelayRoutine(float delay, System.Action action)
+    {
+        //#. 딜레이 대기
+        yield return new WaitForSeconds(delay);
+
+        //#. 죽은 상태면 실행 안 함
+        if (currentState == BossState.Die)
+            yield break;
+
+        //#. 함수 실행
+        action?.Invoke();
+    }
+
+    //#. 플레이어 탄환 SendMessage("OnHit") 수신용
+    public void OnHit(int damage)
+    {
+        //#. TakeDamage로 연결
+        TakeDamage(damage);
     }
 
     //#. 외부에서 데미지 받을 때 호출
@@ -189,9 +218,9 @@ public class BossController : MonoBehaviour
         //#. Pattern Counting
         curPatternCount++;
         if (curPatternCount < maxPatternCount[patternIndex])
-            Invoke("FireAround", aroundDelay);   //#. 패턴 반복
+            StartCoroutine(DelayRoutine(aroundDelay, FireAround));   //#. 패턴 반복
         else
-            Invoke("Think", nextPatternDelay);   //#. 다음 패턴으로
+            StartCoroutine(DelayRoutine(nextPatternDelay, Think));   //#. 다음 패턴으로
     }
 
     void FireForward()
@@ -214,9 +243,9 @@ public class BossController : MonoBehaviour
         //#. Pattern Counting
         curPatternCount++;
         if (curPatternCount < maxPatternCount[patternIndex])
-            Invoke("FireForward", forwardDelay);  //#. 패턴 반복
+            StartCoroutine(DelayRoutine(forwardDelay, FireForward));  //#. 패턴 반복
         else
-            Invoke("Think", nextPatternDelay);    //#. 다음 패턴으로
+            StartCoroutine(DelayRoutine(nextPatternDelay, Think));    //#. 다음 패턴으로
     }
 
     void FireShot()
@@ -224,6 +253,13 @@ public class BossController : MonoBehaviour
         //#. 죽은 상태면 멈추기
         if (currentState == BossState.Die)
             return;
+
+        //#. 플레이어 없으면 멈추기
+        if (player == null)
+        {
+            Debug.LogWarning("[Boss] FireShot - Player가 null입니다!");
+            return;
+        }
 
         //#. 발사 로그
         Debug.Log($"[Boss] FireShot / 회차: {curPatternCount}");
@@ -245,9 +281,9 @@ public class BossController : MonoBehaviour
         //#. Pattern Counting
         curPatternCount++;
         if (curPatternCount < maxPatternCount[patternIndex])
-            Invoke("FireShot", shotDelay);       //#. 패턴 반복
+            StartCoroutine(DelayRoutine(shotDelay, FireShot));       //#. 패턴 반복
         else
-            Invoke("Think", nextPatternDelay);   //#. 다음 패턴으로
+            StartCoroutine(DelayRoutine(nextPatternDelay, Think));   //#. 다음 패턴으로
     }
 
     void FireArc()
@@ -271,9 +307,9 @@ public class BossController : MonoBehaviour
         //#. Pattern Counting
         curPatternCount++;
         if (curPatternCount < maxPatternCount[patternIndex])
-            Invoke("FireArc", arcDelay);         //#. 패턴 반복
+            StartCoroutine(DelayRoutine(arcDelay, FireArc));         //#. 패턴 반복
         else
-            Invoke("Think", nextPatternDelay);   //#. 다음 패턴으로
+            StartCoroutine(DelayRoutine(nextPatternDelay, Think));   //#. 다음 패턴으로
     }
 
     void SpawnBulletA(Vector3 pos, Vector2 dir)
@@ -320,11 +356,18 @@ public class BossController : MonoBehaviour
 
     void Die()
     {
+        //#. 이미 사망 처리 됐으면 무시
+        if (isDead)
+            return;
+
+        //#. 사망 처리 시작
+        isDead = true;
+
+        //#. 모든 코루틴 중지
+        StopAllCoroutines();
+
         //#. 사망 애니메이션 재생
         anim.Play("Boss_Hit");
-
-        //#. 모든 Invoke 취소
-        CancelInvoke();
 
         //#. 사망 로그
         Debug.Log("[Boss] 사망 / 점수 1000점 추가 / 2초 후 비활성화");
@@ -334,7 +377,7 @@ public class BossController : MonoBehaviour
             UIManager.Instance.AddScore(1000);
 
         //#. 2초 후 비활성화
-        Invoke("Deactivate", 2f);
+        StartCoroutine(DelayRoutine(2f, Deactivate));
     }
 
     void Deactivate()
