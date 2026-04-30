@@ -12,7 +12,15 @@ public class PlayerBulletChild : MonoBehaviour
         if (other.GetComponent<PlayerBulletContainer>() != null) return;
         if (!other.CompareTag("Enemy")) return;
 
-        ImpactBulletManager.Instance?.DamageEnemy(other, damage);
+        if (ImpactBulletManager.Instance != null)
+        {
+            ImpactBulletManager.Instance.DamageEnemy(other, damage);
+        }
+        else
+        {
+            // Fallback when manager object is missing in scene.
+            other.SendMessage("OnHit", damage, SendMessageOptions.DontRequireReceiver);
+        }
         PoolManager.Release(gameObject);
     }
 }

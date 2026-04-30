@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Reflection;
 
 public class BossController : MonoBehaviour
 {
@@ -27,7 +28,7 @@ public class BossController : MonoBehaviour
     //#. 체력
     [Header("Health Settings")]
     public int maxHealth = 1000;            //#. 최대 체력
-    public int health = 1000;  //#. 현재 체력
+    public int health = 1000;               //#. 현재 체력
 
     //#. 총알 프리팹
     [Header("Bullet Prefabs")]
@@ -63,6 +64,12 @@ public class BossController : MonoBehaviour
     public Sprite[] sprites;  //#. 0: 기본, 1: 피격
 
     private SpriteRenderer sr;  //#. 스프라이트 렌더러
+    [Header("Hit / Death Timing")]
+    [SerializeField] private float deathDeactivateDelay = 2f;
+    [SerializeField] private float hitSpriteRecoverDelay = 0.1f;
+    private Coroutine restoreSpriteRoutine;
+    private float hitSpriteLockUntil = -1f;
+    private bool hitSpriteForced;
 
     void Start()
     {
@@ -110,6 +117,27 @@ public class BossController : MonoBehaviour
         }
     }
 
+    void LateUpdate()
+    {
+        if (sr == null || sprites == null || sprites.Length == 0 || isDead)
+            return;
+
+        // Animator가 Sprite를 덮어써도, 피격 시간 동안은 강제로 히트 스프라이트 유지
+        if (Time.time < hitSpriteLockUntil)
+        {
+            if (sprites.Length > 1)
+                sr.sprite = sprites[1];
+            hitSpriteForced = true;
+            return;
+        }
+
+        if (hitSpriteForced)
+        {
+            sr.sprite = sprites[0];
+            hitSpriteForced = false;
+        }
+    }
+
     //#. 공통 딜레이 후 함수 실행 코루틴
     private IEnumerator DelayRoutine(float delay, System.Action action)
     {
@@ -138,12 +166,7 @@ public class BossController : MonoBehaviour
         //#. 피격 로그
         Debug.Log($"[Boss] 피격 / 데미지: {damage} / 남은 체력: {health}");
 
-        //#. 피격 스프라이트로 변경 (sprites[1])
-        if (sr != null && sprites.Length > 1)
-            sr.sprite = sprites[1];
-
-        //#. 피격 애니메이션
-        anim.Play("Boss_Hit");
+        ApplyHitSprite();
 
         //#. 체력 0 이하면 즉시 Die() 직접 호출
         if (health <= 0)
@@ -154,30 +177,100 @@ public class BossController : MonoBehaviour
             return;
         }
 
-        //#. 잠시 후 기본 스프라이트로 복원
-        StartCoroutine(RestoreSprite());
     }
 
-//#. 피격 후 스프라이트 복원 코루틴
-    private IEnumerator RestoreSprite()
+    private void ApplyHitSprite()
     {
-        //#. 0.1초 후 기본 스프라이트로 복원
-        yield return new WaitForSeconds(0.1f);
+        if (sr == null || sprites == null || sprites.Length <= 1)
+            return;
 
-        //#. 기본 스프라이트로 복원 (sprites[0])
-        if (sr != null && sprites.Length > 0)
-            sr.sprite = sprites[0];
+        hitSpriteLockUntil = Time.time + hitSpriteRecoverDelay;
+        sr.sprite = sprites[1];
+
+        if (restoreSpriteRoutine != null)
+            StopCoroutine(restoreSpriteRoutine);
+        restoreSpriteRoutine = StartCoroutine(RestoreSpriteRoutine());
     }
+
+
+    private IEnumerator RestoreSpriteRoutine()
+    {
+        yield return new WaitForSeconds(hitSpriteRecoverDelay);
+
+        if (isDead)
+            yield break;
+
+        if (sr != null && sprites != null && sprites.Length > 0)
+            sr.sprite = sprites[0];
+
+        hitSpriteLockUntil = -1f;
+        hitSpriteForced = false;
+        restoreSpriteRoutine = null;
+    }
+
 //#. 플레이어 탄환 SendMessage("OnHit") 수신용
     public void OnHit(int damage)
     {
         //#. TakeDamage로 연결
         TakeDamage(damage);
     }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        TryHandlePlayerBulletHit(other != null ? other.gameObject : null);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        TryHandlePlayerBulletHit(collision != null ? collision.gameObject : null);
+    }
+
+    private void TryHandlePlayerBulletHit(GameObject hitObject)
+    {
+        if (hitObject == null || isDead)
+        {
+            return;
+        }
+
+        int damage = GetDamageFromPlayerBullet(hitObject);
+        if (damage <= 0)
+        {
+            return;
+        }
+
+        Debug.Log($"[Boss] Bullet collision hit / damage: {damage}");
+        TakeDamage(damage);
+    }
+
+    private int GetDamageFromPlayerBullet(GameObject hitObject)
+    {
+        Component playerBullet = hitObject.GetComponent("PlayerBullet");
+        if (playerBullet != null)
+        {
+            FieldInfo damageField = playerBullet.GetType().GetField("damage");
+            if (damageField != null && damageField.FieldType == typeof(int))
+            {
+                return (int)damageField.GetValue(playerBullet);
+            }
+        }
+
+        Component playerBulletChild = hitObject.GetComponent("PlayerBulletChild");
+        if (playerBulletChild != null)
+        {
+            FieldInfo damageField = playerBulletChild.GetType().GetField("damage");
+            if (damageField != null && damageField.FieldType == typeof(int))
+            {
+                return (int)damageField.GetValue(playerBulletChild);
+            }
+        }
+
+        return 0;
+    }
     void Idle()
     {
         //#. Idle 애니메이션 재생
-        anim.Play("Boss_Idle");
+        if (!anim.GetCurrentAnimatorStateInfo(0).IsName("Boss_Idle"))
+            anim.Play("Boss_Idle");
     }
 
     void Think()
@@ -389,22 +482,33 @@ public class BossController : MonoBehaviour
 
         //#. 사망 처리 시작
         isDead = true;
+        currentState = BossState.Die;
 
         //#. 모든 코루틴 중지
         StopAllCoroutines();
+        restoreSpriteRoutine = null;
+        hitSpriteLockUntil = -1f;
+        hitSpriteForced = false;
 
-        //#. 사망 애니메이션 재생
-        anim.Play("Boss_Hit");
+        //#. 사망 시 기본 스프라이트로 고정
+        if (sr != null && sprites != null && sprites.Length > 0)
+            sr.sprite = sprites[0];
 
         //#. 사망 로그
-        Debug.Log("[Boss] 사망 / 점수 1000점 추가 / 2초 후 비활성화");
+        Debug.Log("[Boss] 사망 / 점수 1000점 추가");
 
         //#. 보스 처치 점수 1000점 추가
         if (UIManager.Instance != null)
             UIManager.Instance.AddScore(1000);
 
-        //#. 2초 후 비활성화
-        StartCoroutine(DelayRoutine(2f, Deactivate));
+        //#. 설정된 시간 뒤 비활성화
+        StartCoroutine(DeactivateAfterDelay(deathDeactivateDelay));
+    }
+
+    private IEnumerator DeactivateAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Deactivate();
     }
 
     void Deactivate()
