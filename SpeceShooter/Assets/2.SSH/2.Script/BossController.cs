@@ -24,8 +24,10 @@ public class BossController : MonoBehaviour
     //#. 컴포넌트
     private Animator anim;
     private Transform player;
-    [Header("Boss Enemy Type Sync")]
-    [SerializeField] private Enemy bossEnemyComponent;
+    //[Header("Boss Enemy Type Sync")]
+    //[SerializeField] private Enemy bossEnemyComponent;
+
+    public Enemy.EnemyType enemyType = Enemy.EnemyType.D;
 
     //#. 체력
     [Header("Health Settings")]
@@ -75,61 +77,47 @@ public class BossController : MonoBehaviour
 
     void Start()
     {
-        SyncBossEnemyType();
-
-        //#. 체력 초기화
         health = maxHealth;
-
-        //#. 컴포넌트 초기화
         anim = GetComponent<Animator>();
-
-        //#. 플레이어 위치 찾기 (null-safe)
-        GameObject playerObj = GameObject.FindWithTag("Player");
-        if (playerObj != null)
-            player = playerObj.transform;
-        else
-            Debug.LogWarning("[Boss] Player 태그 오브젝트를 찾을 수 없습니다!");
-
-        //#. 시작 상태 설정
-        currentState = BossState.Idle;
-
-        //#. 시작 로그
-        Debug.Log($"[Boss] 등장 / 체력: {health} / 상태: {currentState}");
-
-        //#. 첫 패턴 딜레이 후 시작
-        StartCoroutine(DelayRoutine(attackInterval, Think));
-        
-        //#. 스프라이트 렌더러 초기화
         sr = GetComponent<SpriteRenderer>();
+
+        StartCoroutine(Move());   
+        
     }
 
-    private void SyncBossEnemyType()
+    private IEnumerator Move()
     {
-        if (bossEnemyComponent == null)
-            bossEnemyComponent = GetComponent<Enemy>();
+        while(true)
+        {
+            //이동 
+            transform.Translate(Vector3.down * Time.deltaTime * 1f);
+            if(transform.position.y <= 1f)
+            {
+                break;
+            }
+            yield return null;   
+        }   
 
-        if (bossEnemyComponent == null)
-            bossEnemyComponent = gameObject.AddComponent<Enemy>();
-
-        bossEnemyComponent.enemyType = Enemy.EnemyType.D;
+        Debug.Log("이동 완료");
     }
+
 
     void Update()
     {
         //#. 상태가 바뀔 때만 로그 출력
-        if (currentState != prevState)
-        {
-            Debug.Log($"[Boss] 상태 변경: {prevState} → {currentState}");
-            prevState = currentState;
-        }
+        // if (currentState != prevState)
+        // {
+        //     Debug.Log($"[Boss] 상태 변경: {prevState} → {currentState}");
+        //     prevState = currentState;
+        // }
 
-        //#. 상태머신 (Die는 TakeDamage에서 직접 호출)
-        switch (currentState)
-        {
-            case BossState.Idle:   Idle();   break;
-            case BossState.Attack: break;
-            case BossState.Die:    break;    //#. Update에서 호출 안 함
-        }
+        // //#. 상태머신 (Die는 TakeDamage에서 직접 호출)
+        // switch (currentState)
+        // {
+        //     case BossState.Idle:   Idle();   break;
+        //     case BossState.Attack: break;
+        //     case BossState.Die:    break;    //#. Update에서 호출 안 함
+        // }
     }
 
     void LateUpdate()
@@ -294,30 +282,30 @@ public class BossController : MonoBehaviour
     void Think()
     {
         //#. 죽은 상태면 패턴 실행 안 함
-        if (currentState == BossState.Die)
-            return;
+        // if (currentState == BossState.Die)
+        //     return;
 
-        //#. 패턴 카운트 초기화
-        curPatternCount = 0;
+        // //#. 패턴 카운트 초기화
+        // curPatternCount = 0;
 
-        //#. 패턴 랜덤 선택 (0~3)
-        patternIndex = Random.Range(0, 4);
+        // //#. 패턴 랜덤 선택 (0~3)
+        // patternIndex = Random.Range(0, 4);
 
-        //#. 패턴 선택 로그
-        string[] patternNames = { "FireAround", "FireForward", "FireShot", "FireArc" };
-        Debug.Log($"[Boss] 패턴 선택: {patternNames[patternIndex]} (index: {patternIndex})");
+        // //#. 패턴 선택 로그
+        // string[] patternNames = { "FireAround", "FireForward", "FireShot", "FireArc" };
+        // Debug.Log($"[Boss] 패턴 선택: {patternNames[patternIndex]} (index: {patternIndex})");
 
-        //#. 공격 상태로 전환
-        currentState = BossState.Attack;
+        // //#. 공격 상태로 전환
+        // currentState = BossState.Attack;
 
-        //#. 선택된 패턴 실행
-        switch (patternIndex)
-        {
-            case 0: FireAround();  break;
-            case 1: FireForward(); break;
-            case 2: FireShot();    break;
-            case 3: FireArc();     break;
-        }
+        // //#. 선택된 패턴 실행
+        // switch (patternIndex)
+        // {
+        //     case 0: FireAround();  break;
+        //     case 1: FireForward(); break;
+        //     case 2: FireShot();    break;
+        //     case 3: FireArc();     break;
+        // }
     }
 
     void FireAround()

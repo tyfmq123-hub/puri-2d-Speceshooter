@@ -67,8 +67,8 @@ public class Enemy : MonoBehaviour
         if (spriteRenderer != null && sprites != null && sprites.Length > 0)
             spriteRenderer.sprite = sprites[0];
 
-        if (rigidBody != null)
-            rigidBody.linearVelocity = moveDirection * speed;
+        // if (rigidBody != null)
+        //     rigidBody.linearVelocity = moveDirection * speed;
     }
 
     private void OnDisable()
@@ -79,7 +79,8 @@ public class Enemy : MonoBehaviour
     private void Update()
     {
         ApplyDownwardMovement();
-        TryFireEnemyBullet();
+        TryFireEnemyBullet();    
+        
     }
 
     private void OnValidate()
@@ -145,7 +146,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    // Shared damage entrypoint used by PlayerBullet/ImpactBulletManager via SendMessage.
+    // // Shared damage entrypoint used by PlayerBullet/ImpactBulletManager via SendMessage.
     public void OnHit(int damage)
     {
         ApplyDamage(damage);

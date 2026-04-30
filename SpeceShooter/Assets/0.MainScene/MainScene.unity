@@ -592,18 +592,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 9129771818915219151, guid: 39e0e4e2ec05aac4a95ba00082ec2e0f, type: 3}
-      propertyPath: health
-      value: 1000
-      objectReference: {fileID: 0}
-    - target: {fileID: 9129771818915219151, guid: 39e0e4e2ec05aac4a95ba00082ec2e0f, type: 3}
-      propertyPath: maxHealth
-      value: 1000
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1574269680208096926, guid: 39e0e4e2ec05aac4a95ba00082ec2e0f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1670124941}
   m_SourcePrefab: {fileID: 100100000, guid: 39e0e4e2ec05aac4a95ba00082ec2e0f, type: 3}
 --- !u!1 &1200815406
 GameObject:
@@ -692,6 +687,41 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6800526373120497996, guid: c3e60598561a48a4693df469dc3637cf, type: 3}
   m_PrefabInstance: {fileID: 174027630}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1670124934 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1574269680208096926, guid: 39e0e4e2ec05aac4a95ba00082ec2e0f, type: 3}
+  m_PrefabInstance: {fileID: 1007686518}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1670124941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1670124934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aa7c6852557d7c4fafc9b50e41f59df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossController
+  bossEnemyComponent: {fileID: 0}
+  maxHealth: 1000
+  health: 1000
+  bossBulletAPrefab: {fileID: 0}
+  bossBulletBPrefab: {fileID: 0}
+  bulletASpeed: 5
+  bulletBSpeed: 5
+  aroundBulletCountA: 50
+  aroundBulletCountB: 40
+  attackInterval: 2
+  aroundDelay: 0.7
+  forwardDelay: 2
+  shotDelay: 3.5
+  arcDelay: 0.15
+  nextPatternDelay: 3
+  sprites: []
+  deathDeactivateDelay: 2
+  hitSpriteRecoverDelay: 0.1
 --- !u!1001 &1708149586
 PrefabInstance:
   m_ObjectHideFlags: 0
