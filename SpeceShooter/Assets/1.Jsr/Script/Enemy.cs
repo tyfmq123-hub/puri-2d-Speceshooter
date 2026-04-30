@@ -33,6 +33,15 @@ public class Enemy : MonoBehaviour
     [Header("Player Collision Damage")]
     [SerializeField] private int collisionDamage = 1;
 
+    [Header("Item Drop")]
+    [SerializeField, Range(0f, 1f)] private float noDropChance = 0.3f;
+    [SerializeField, Range(0f, 1f)] private float coinDropChance = 0.3f;
+    [SerializeField, Range(0f, 1f)] private float powerDropChance = 0.3f;
+    [SerializeField, Range(0f, 1f)] private float boomDropChance = 0.1f;
+    [SerializeField] private GameObject coinItemPrefab;
+    [SerializeField] private GameObject powerItemPrefab;
+    [SerializeField] private GameObject boomItemPrefab;
+
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rigidBody;
     private float lastFireTime;
@@ -79,6 +88,7 @@ public class Enemy : MonoBehaviour
         EnsureMoveSpeed();
         SetHealthByType();
         if (fireInterval < 0.1f) fireInterval = 0.1f;
+        NormalizeDropChances();
     }
 
     private void EnsureMoveSpeed()
@@ -302,22 +312,70 @@ public class Enemy : MonoBehaviour
 
     private void TryDropItem()
     {
-        // None 30% / Coin 30% / Power 30% / Boom 10%
-        int rand = Random.Range(0, 10);
-        if (rand < 3) return;
+        float roll = Random.value;
+        float noDropThreshold = noDropChance;
+        float coinThreshold = noDropThreshold + coinDropChance;
+        float powerThreshold = coinThreshold + powerDropChance;
 
-        GameObject item = null;
-        if (PoolManager.Instance != null)
+        if (roll < noDropThreshold)
         {
-            if (rand < 6)      item = PoolManager.Instance.GetCoinItem();
-            else if (rand < 9) item = PoolManager.Instance.GetPowerItem();
-            else               item = PoolManager.Instance.GetBoomItem();
+            return;
         }
 
-        if (item == null) return;
+        GameObject item = null;
+        GameObject fallbackPrefab = null;
+
+        if (roll < coinThreshold)
+        {
+            if (PoolManager.Instance != null) item = PoolManager.Instance.GetCoinItem();
+            fallbackPrefab = coinItemPrefab;
+        }
+        else if (roll < powerThreshold)
+        {
+            if (PoolManager.Instance != null) item = PoolManager.Instance.GetPowerItem();
+            fallbackPrefab = powerItemPrefab;
+        }
+        else
+        {
+            if (PoolManager.Instance != null) item = PoolManager.Instance.GetBoomItem();
+            fallbackPrefab = boomItemPrefab;
+        }
+
+        if (item == null && fallbackPrefab != null)
+        {
+            item = Instantiate(fallbackPrefab, transform.position, Quaternion.identity);
+        }
+
+        if (item == null)
+        {
+            return;
+        }
 
         item.transform.position = transform.position;
         item.SetActive(true);
         item.GetComponent<Item>()?.BeginMove();
+    }
+
+    private void NormalizeDropChances()
+    {
+        noDropChance = Mathf.Clamp01(noDropChance);
+        coinDropChance = Mathf.Clamp01(coinDropChance);
+        powerDropChance = Mathf.Clamp01(powerDropChance);
+        boomDropChance = Mathf.Clamp01(boomDropChance);
+
+        float total = noDropChance + coinDropChance + powerDropChance + boomDropChance;
+        if (total <= 0.0001f)
+        {
+            noDropChance = 0.3f;
+            coinDropChance = 0.3f;
+            powerDropChance = 0.3f;
+            boomDropChance = 0.1f;
+            return;
+        }
+
+        noDropChance /= total;
+        coinDropChance /= total;
+        powerDropChance /= total;
+        boomDropChance /= total;
     }
 }
