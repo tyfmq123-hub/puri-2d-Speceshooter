@@ -52,10 +52,7 @@ public class Player : MonoBehaviour
     private Vector2 moveInput;
     private float lastAttackTime;
     private int moveStateHash;
-    private int previousLife;
     private bool deathHandled;
-    private Vector3 initialSpawnPosition;
-    private int pendingUiDamage;
     private float hitStateEndTime;
     private float respawnInvincibleEndTime;
     private float lastFireInputTime = -999f;
@@ -83,8 +80,6 @@ public class Player : MonoBehaviour
         cachedCamera = Camera.main;
         lastAttackTime = -attackCooldown;
         moveStateHash = Animator.StringToHash(MoveStateParam);
-        previousLife = life;
-        initialSpawnPosition = transform.position;
         positionHistory.Add(transform.position);
         SyncFollowerCount();
         ApplyVisualAlpha(1f);
@@ -116,14 +111,26 @@ public class Player : MonoBehaviour
             return;
         }
 
-        int appliedDamage = Mathf.Max(1, amount);
-        life = Mathf.Max(0, life - appliedDamage);
-        pendingUiDamage += appliedDamage;
-
-        if (life > 0)
+        if (UIManager.Instance != null)
         {
-            EnterHitState();
+            UIManager.Instance.ApplyPlayerDamage(this, amount);
         }
+    }
+
+    public void ApplyDamageFeedback(bool survived)
+    {
+        if (!survived)
+        {
+            return;
+        }
+
+        EnterHitState();
+        transform.position = GetRespawnPosition();
+        moveInput = Vector2.zero;
+        ActivateRespawnInvincibility(respawnInvincibilityDuration);
+
+        positionHistory.Clear();
+        positionHistory.Add(transform.position);
     }
 
     private bool IsHitInvincible()
@@ -155,16 +162,6 @@ public class Player : MonoBehaviour
 
         UpdateInvincibilityVisuals();
 
-        if (life != previousLife)
-        {
-            int oldLife = previousLife;
-            int newLife = life;
-            previousLife = newLife;
-
-            if (newLife < oldLife)
-                HandleLifeReduced(oldLife - newLife);
-        }
-
         if (life <= 0)
         {
             if (fireCoroutine != null)
@@ -184,33 +181,6 @@ public class Player : MonoBehaviour
         HandleAttack();
         SyncFollowerCount();
         UpdateAnimation();
-    }
-
-    private void HandleLifeReduced(int damageAmount)
-    {
-        if (damageAmount <= 0)
-        {
-            return;
-        }
-
-        int uiDamage = Mathf.Min(damageAmount, pendingUiDamage);
-        if (UIManager.Instance != null && uiDamage > 0)
-        {
-            for (int i = 0; i < uiDamage; i++)
-            {
-                UIManager.Instance.DecreaseLife();
-            }
-        }
-        pendingUiDamage = Mathf.Max(0, pendingUiDamage - uiDamage);
-
-        if (life > 0)
-        {
-            transform.position = initialSpawnPosition;
-            moveInput = Vector2.zero;
-
-            positionHistory.Clear();
-            positionHistory.Add(transform.position);
-        }
     }
 
     private void OnDisable()
