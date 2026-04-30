@@ -27,7 +27,7 @@ public class BoomManager : MonoBehaviour
 
     public void UseBoom()
     {
-        UIManager.Instance?.UseBoom();
+        if (UIManager.Instance == null || !UIManager.Instance.UseBoom()) return;
         StartCoroutine(BoomRoutine());
     }
 
@@ -46,16 +46,13 @@ public class BoomManager : MonoBehaviour
             foreach (var enemy in FindObjectsByType<Enemy>())
             {
                 if (enemy == null || !enemy.gameObject.activeInHierarchy) continue;
-                enemy.gameObject.SendMessage("OnHit", 9999, SendMessageOptions.DontRequireReceiver);
+                enemy.OnHit(9999);
             }
 
             foreach (var bullet in FindObjectsByType<EnemyBullet>())
             {
                 if (bullet == null || !bullet.gameObject.activeInHierarchy) continue;
-                if (PoolManager.Instance != null)
-                    PoolManager.Instance.ReturnToPool(bullet.gameObject);
-                else
-                    bullet.gameObject.SetActive(false);
+                PoolManager.Release(bullet.gameObject);
             }
 
             elapsed += 0.1f;

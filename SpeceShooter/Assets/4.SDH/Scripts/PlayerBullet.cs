@@ -51,19 +51,10 @@ public class PlayerBullet : MonoBehaviour
         if (other.GetComponent<PlayerBullet>() != null) return;
         if (!other.CompareTag("Enemy")) return;
 
-        if (ImpactBulletManager.Instance != null)
-            ImpactBulletManager.Instance.DamageEnemy(other, damage);
-        else
-            other.SendMessage("OnHit", damage, SendMessageOptions.DontRequireReceiver);
+        ImpactBulletManager.Instance?.DamageEnemy(other, damage);
 
         ReturnToPool();
     }
 
-    void ReturnToPool()
-    {
-        if (PoolManager.Instance != null)
-            PoolManager.Instance.ReturnToPool(gameObject);
-        else
-            Destroy(gameObject);
-    }
+    void ReturnToPool() => PoolManager.Release(gameObject);
 }

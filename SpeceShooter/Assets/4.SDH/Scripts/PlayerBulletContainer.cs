@@ -47,11 +47,5 @@ public class PlayerBulletContainer : MonoBehaviour
         return true;
     }
 
-    private void ReturnSelf()
-    {
-        if (PoolManager.Instance != null)
-            PoolManager.Instance.ReturnToPool(gameObject);
-        else
-            Destroy(gameObject);
-    }
+    private void ReturnSelf() => PoolManager.Release(gameObject);
 }

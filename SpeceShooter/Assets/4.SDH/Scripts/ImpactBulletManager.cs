@@ -25,12 +25,13 @@ public class ImpactBulletManager : MonoBehaviour
         // 사망 처리는 Player.Update()의 life <= 0 감지에 위임
     }
 
-    // player 총알이 적에 맞았을 때 (Enemy.cs의 OnHit 호출)
+    // player 총알이 적에 맞았을 때
     public void DamageEnemy(Collider2D enemyCol, int damage)
     {
         if (enemyCol == null) return;
 
-        enemyCol.SendMessage("OnHit", damage, SendMessageOptions.DontRequireReceiver);
+        Enemy enemy = enemyCol.GetComponent<Enemy>();
+        if (enemy != null) enemy.OnHit(damage);
         OnEnemyDamaged?.Invoke(damage);
     }
 }

@@ -74,14 +74,12 @@ public class BoosBullet123 : MonoBehaviour
         ReturnToPool();
     }
 
-    private void ReturnToPool()
+    private void OnEnable()
     {
-        //#. 풀 없으면 삭제
         useRigidbody = false;
-        if (PoolManager.Instance != null)
-            PoolManager.Instance.ReturnToPool(gameObject);
-        else
-            Destroy(gameObject);
+        direction = Vector2.down;
     }
+
+    private void ReturnToPool() => PoolManager.Release(gameObject);
     
 }

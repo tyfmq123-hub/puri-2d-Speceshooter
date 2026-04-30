@@ -96,13 +96,7 @@ public class Item : MonoBehaviour
         return ItemType.None;
     }
 
-    private void ReturnToPool()
-    {
-        if (PoolManager.Instance != null)
-            PoolManager.Instance.ReturnToPool(gameObject);
-        else
-            Destroy(gameObject);
-    }
+    private void ReturnToPool() => PoolManager.Release(gameObject);
 
     void OnDisable()
     {
