@@ -26,8 +26,8 @@ public class BossController : MonoBehaviour
 
     //#. 체력
     [Header("Health Settings")]
-    public int maxHealth = 10;            //#. 최대 체력
-    [SerializeField] private int health;  //#. 현재 체력 (인스펙터 확인용)
+    public int maxHealth = 1000;            //#. 최대 체력
+    public int health = 1000;  //#. 현재 체력
 
     //#. 총알 프리팹
     [Header("Bullet Prefabs")]
@@ -57,6 +57,12 @@ public class BossController : MonoBehaviour
     private int curPatternCount = 0;                 //#. 현재 패턴 반복 횟수
     private int patternIndex    = 0;                 //#. 현재 패턴 인덱스
     private int[] maxPatternCount = { 3, 5, 4, 8 }; //#. 패턴별 최대 반복 횟수
+    
+    //#. 보스 스프라이트
+    [Header("Sprites")]
+    public Sprite[] sprites;  //#. 0: 기본, 1: 피격
+
+    private SpriteRenderer sr;  //#. 스프라이트 렌더러
 
     void Start()
     {
@@ -81,6 +87,9 @@ public class BossController : MonoBehaviour
 
         //#. 첫 패턴 딜레이 후 시작
         StartCoroutine(DelayRoutine(attackInterval, Think));
+        
+        //#. 스프라이트 렌더러 초기화
+        sr = GetComponent<SpriteRenderer>();
     }
 
     void Update()
@@ -92,12 +101,12 @@ public class BossController : MonoBehaviour
             prevState = currentState;
         }
 
-        //#. 상태머신
+        //#. 상태머신 (Die는 TakeDamage에서 직접 호출)
         switch (currentState)
         {
             case BossState.Idle:   Idle();   break;
-            case BossState.Attack: break;    //#. 공격은 Coroutine으로 처리
-            case BossState.Die:    Die();    break;
+            case BossState.Attack: break;
+            case BossState.Die:    break;    //#. Update에서 호출 안 함
         }
     }
 
@@ -116,17 +125,11 @@ public class BossController : MonoBehaviour
     }
 
     //#. 플레이어 탄환 SendMessage("OnHit") 수신용
-    public void OnHit(int damage)
-    {
-        //#. TakeDamage로 연결
-        TakeDamage(damage);
-    }
-
     //#. 외부에서 데미지 받을 때 호출
     public void TakeDamage(int damage)
     {
         //#. 이미 죽은 상태면 무시
-        if (currentState == BossState.Die)
+        if (isDead)
             return;
 
         //#. 체력 감소
@@ -135,18 +138,42 @@ public class BossController : MonoBehaviour
         //#. 피격 로그
         Debug.Log($"[Boss] 피격 / 데미지: {damage} / 남은 체력: {health}");
 
+        //#. 피격 스프라이트로 변경 (sprites[1])
+        if (sr != null && sprites.Length > 1)
+            sr.sprite = sprites[1];
+
         //#. 피격 애니메이션
         anim.Play("Boss_Hit");
 
-        //#. 체력 0 이하면 사망 상태로 전환
+        //#. 체력 0 이하면 즉시 Die() 직접 호출
         if (health <= 0)
         {
             health = 0;
-            Debug.Log("[Boss] 체력 0 → 사망 상태로 전환");
-            currentState = BossState.Die;
+            Debug.Log("[Boss] 체력 0 → Die() 직접 호출");
+            Die();
+            return;
         }
+
+        //#. 잠시 후 기본 스프라이트로 복원
+        StartCoroutine(RestoreSprite());
     }
 
+//#. 피격 후 스프라이트 복원 코루틴
+    private IEnumerator RestoreSprite()
+    {
+        //#. 0.1초 후 기본 스프라이트로 복원
+        yield return new WaitForSeconds(0.1f);
+
+        //#. 기본 스프라이트로 복원 (sprites[0])
+        if (sr != null && sprites.Length > 0)
+            sr.sprite = sprites[0];
+    }
+//#. 플레이어 탄환 SendMessage("OnHit") 수신용
+    public void OnHit(int damage)
+    {
+        //#. TakeDamage로 연결
+        TakeDamage(damage);
+    }
     void Idle()
     {
         //#. Idle 애니메이션 재생
