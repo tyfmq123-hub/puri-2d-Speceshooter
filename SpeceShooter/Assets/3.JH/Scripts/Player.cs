@@ -60,6 +60,7 @@ public class Player : MonoBehaviour
     private float respawnInvincibleEndTime;
     private float lastFireInputTime = -999f;
     private Coroutine fireCoroutine;
+    private Camera cachedCamera;
     private readonly List<Follower> followers = new List<Follower>();
     private int syncedFollowerCount = -1;
     private readonly List<Vector3> positionHistory = new List<Vector3>();
@@ -79,6 +80,7 @@ public class Player : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        cachedCamera = Camera.main;
         lastAttackTime = -attackCooldown;
         moveStateHash = Animator.StringToHash(MoveStateParam);
         previousLife = life;
@@ -427,6 +429,22 @@ public class Player : MonoBehaviour
         Vector2 targetInput = new Vector2(horizontal, vertical).normalized;
         moveInput = Vector2.Lerp(moveInput, targetInput, moveInputSmoothing);
         transform.position += (Vector3)(moveInput * moveSpeed * Time.deltaTime);
+        ClampPositionToScreen();
+    }
+
+    private void ClampPositionToScreen()
+    {
+        if (cachedCamera == null) cachedCamera = Camera.main;
+        if (cachedCamera == null) return;
+
+        float z = transform.position.z - cachedCamera.transform.position.z;
+        Vector3 min = cachedCamera.ViewportToWorldPoint(new Vector3(0f, 0f, z));
+        Vector3 max = cachedCamera.ViewportToWorldPoint(new Vector3(1f, 1f, z));
+
+        Vector3 pos = transform.position;
+        pos.x = Mathf.Clamp(pos.x, min.x, max.x);
+        pos.y = Mathf.Clamp(pos.y, min.y, max.y);
+        transform.position = pos;
     }
 
     //private void HandleBoom()

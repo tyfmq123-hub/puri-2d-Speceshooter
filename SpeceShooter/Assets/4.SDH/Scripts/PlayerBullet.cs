@@ -36,8 +36,8 @@ public class PlayerBullet : MonoBehaviour
 
         if (cachedCamera != null)
         {
-            Vector3 viewPos = cachedCamera.WorldToViewportPoint(transform.position);
-            if (viewPos.y > 1f)
+            Vector3 vp = cachedCamera.WorldToViewportPoint(transform.position);
+            if (vp.y > 1.1f || vp.y < -0.1f || vp.x < -0.1f || vp.x > 1.1f)
                 ReturnToPool();
         }
         else if (transform.position.y > 20f)

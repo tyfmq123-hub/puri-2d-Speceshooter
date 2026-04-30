@@ -25,7 +25,11 @@ public class PooledEnemy : MonoBehaviour
             if (cachedCamera == null) cachedCamera = Camera.main;
             if (cachedCamera == null) continue;
 
-            if (cachedCamera.WorldToViewportPoint(transform.position).y < -0.1f)
+            Vector3 vp = cachedCamera.WorldToViewportPoint(transform.position);
+            bool outOfBounds = vp.y < -0.1f || vp.y > 1.3f
+                            || vp.x < -0.3f || vp.x > 1.3f;
+
+            if (outOfBounds)
             {
                 if (PoolManager.Instance != null)
                     PoolManager.Instance.ReturnToPool(gameObject);
