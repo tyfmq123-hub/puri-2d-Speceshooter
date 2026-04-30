@@ -27,63 +27,45 @@ public class CreateEnemyManager : MonoBehaviour
 
     void Start()
     {
-        StartCoroutine(SpawnRoutine());
+        if (DataManager.Instance?.StageData?.waves != null)
+            StartCoroutine(WaveRoutine());
+        else
+            StartCoroutine(SpawnRoutine());
     }
 
+    // DataManager 기반 웨이브 순차 스폰
+    private IEnumerator WaveRoutine()
+    {
+        foreach (WaveData wave in DataManager.Instance.StageData.waves)
+        {
+            foreach (SpawnData spawn in wave.enemies)
+            {
+                yield return new WaitForSeconds(spawn.delay);
+                int typeIndex = (int)spawn.enemyType;
+                if (typeIndex == 3)
+                    SpawnBoss();
+                else
+                    SpawnEnemyAtPoint(typeIndex, spawn.point);
+            }
+        }
+    }
+
+    // 랜덤 스폰 (DataManager 없을 때 fallback)
     private IEnumerator SpawnRoutine()
     {
         while (true)
         {
             yield return new WaitForSeconds(spawnInterval);
-            SpawnEnemy();
+            SpawnEnemyAtPoint(UnityEngine.Random.Range(0, 3), -1);
         }
     }
 
-    private void SpawnEnemy()
+    private void SpawnEnemyAtPoint(int typeIndex, int pointIndex)
     {
-        // 0:A 1:B 2:C 중 랜덤
-        int index = UnityEngine.Random.Range(0, 3);
-
-        GameObject enemy = null;
-        GameObject fallbackPrefab = index switch
-        {
-            0 => enemyAPrefab,
-            1 => enemyBPrefab,
-            _ => enemyCPrefab
-        };
-
-        if (PoolManager.Instance != null)
-        {
-            enemy = index switch
-            {
-                0 => PoolManager.Instance.GetEnemyA(),
-                1 => PoolManager.Instance.GetEnemyB(),
-                _ => PoolManager.Instance.GetEnemyC()
-            };
-
-            // Pool exists but couldn't provide an object (pool empty or unconfigured).
-            if (enemy == null && fallbackPrefab != null)
-            {
-                enemy = Instantiate(fallbackPrefab);
-            }
-        }
-        else
-        {
-            if (!warnedMissingPool)
-            {
-                Debug.LogWarning("PoolManager not found. CreateEnemyManager is using prefab instantiate fallback.");
-                warnedMissingPool = true;
-            }
-
-            if (fallbackPrefab != null)
-            {
-                enemy = Instantiate(fallbackPrefab);
-            }
-        }
-
+        GameObject enemy = GetEnemyFromPool(typeIndex);
         if (enemy == null) return;
 
-        Transform spawnPoint = GetRandomSpawnPoint();
+        Transform spawnPoint = pointIndex >= 0 ? GetSpawnPointByIndex(pointIndex) : GetRandomSpawnPoint();
         Vector3 spawnPos = GetSpawnPosition(spawnPoint);
         ConfigureEnemyMoveDirection(enemy, spawnPoint);
         enemy.transform.position = spawnPos;
@@ -92,15 +74,71 @@ public class CreateEnemyManager : MonoBehaviour
         OnEnemySpawned?.Invoke(enemy);
     }
 
+    private void SpawnBoss()
+    {
+        if (PoolManager.Instance == null) return;
+        GameObject boss = PoolManager.Instance.GetEnemyD();
+        if (boss == null) return;
+
+        Camera cam = Camera.main;
+        Vector3 spawnPos = cam != null
+            ? cam.ViewportToWorldPoint(new Vector3(0.5f, 1.2f, 0f))
+            : new Vector3(0f, 10f, 0f);
+        spawnPos.z = 0f;
+
+        boss.transform.position = spawnPos;
+        boss.transform.SetParent(null);
+        boss.SetActive(true);
+    }
+
+    private GameObject GetEnemyFromPool(int typeIndex)
+    {
+        GameObject fallbackPrefab = typeIndex switch
+        {
+            0 => enemyAPrefab,
+            1 => enemyBPrefab,
+            _ => enemyCPrefab
+        };
+
+        GameObject enemy = null;
+
+        if (PoolManager.Instance != null)
+        {
+            enemy = typeIndex switch
+            {
+                0 => PoolManager.Instance.GetEnemyA(),
+                1 => PoolManager.Instance.GetEnemyB(),
+                _ => PoolManager.Instance.GetEnemyC()
+            };
+            if (enemy == null && fallbackPrefab != null)
+                enemy = Instantiate(fallbackPrefab);
+        }
+        else
+        {
+            if (!warnedMissingPool)
+            {
+                Debug.LogWarning("PoolManager not found. CreateEnemyManager is using prefab instantiate fallback.");
+                warnedMissingPool = true;
+            }
+            if (fallbackPrefab != null)
+                enemy = Instantiate(fallbackPrefab);
+        }
+
+        return enemy;
+    }
+
     private Transform GetRandomSpawnPoint()
     {
         if (spawnPoints != null && spawnPoints.Length > 0)
-        {
-            int pointIndex = UnityEngine.Random.Range(0, spawnPoints.Length);
-            return spawnPoints[pointIndex];
-        }
-
+            return spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Length)];
         return null;
+    }
+
+    private Transform GetSpawnPointByIndex(int index)
+    {
+        if (spawnPoints != null && index >= 0 && index < spawnPoints.Length)
+            return spawnPoints[index];
+        return GetRandomSpawnPoint();
     }
 
     private Vector3 GetSpawnPosition(Transform spawnPoint)

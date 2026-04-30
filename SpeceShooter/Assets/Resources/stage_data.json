@@ -137,6 +137,11 @@
         { "delay": 0.15, "enemyType": 2, "point": 4 },
         { "delay": 0.15, "enemyType": 0, "point": 2 }
       ]
+    },
+    {
+      "enemies": [
+        { "delay": 5.0, "enemyType": 3, "point": 0 }
+      ]
     }
   ]
 }
