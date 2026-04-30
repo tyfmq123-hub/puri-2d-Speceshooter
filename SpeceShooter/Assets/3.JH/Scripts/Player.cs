@@ -40,7 +40,7 @@ public class Player : MonoBehaviour
     
     [Header("Respawn")]
     [SerializeField] private float respawnDelay = 1.5f;
-    [SerializeField] private float respawnInvincibilityDuration = 0.5f;
+    [SerializeField] private float respawnInvincibilityDuration = 2f;
     [SerializeField] private Transform respawnPoint;
 
     private const string MoveStateParam = "State";
