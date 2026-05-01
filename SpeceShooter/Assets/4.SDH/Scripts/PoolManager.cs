@@ -22,7 +22,9 @@ public class PoolManager : MonoBehaviour
     public int enemyCCount = 10;
     public GameObject enemyDPrefab;
     public int enemyDCount = 1;
-
+    [Header("Boss")]
+    public GameObject bossPrefab;
+    public int bossCount = 1;
     [Header("Items")]
     public GameObject coinItemPrefab;
     public int coinItemCount = 5;
@@ -37,6 +39,7 @@ public class PoolManager : MonoBehaviour
     private List<GameObject> enemyBPool         = new List<GameObject>();
     private List<GameObject> enemyCPool         = new List<GameObject>();
     private List<GameObject> enemyDPool         = new List<GameObject>();
+    private List<GameObject> bossPool           = new List<GameObject>();
     private List<GameObject> coinItemPool       = new List<GameObject>();
     private List<GameObject> powerItemPool      = new List<GameObject>();
     private List<GameObject> boomItemPool       = new List<GameObject>();
@@ -52,6 +55,7 @@ public class PoolManager : MonoBehaviour
         InitEnemyPool(enemyBPool, enemyBPrefab, enemyBCount);
         InitEnemyPool(enemyCPool, enemyCPrefab, enemyCCount);
         InitEnemyPool(enemyDPool, enemyDPrefab, enemyDCount);
+        InitEnemyPool(bossPool,   bossPrefab,   bossCount);
         InitPool(coinItemPool,  coinItemPrefab,  coinItemCount);
         InitPool(powerItemPool, powerItemPrefab, powerItemCount);
         InitPool(boomItemPool,  boomItemPrefab,  boomItemCount);
@@ -129,6 +133,7 @@ public class PoolManager : MonoBehaviour
     public GameObject GetEnemyB()         => GetFromEnemyPool(enemyBPool, enemyBPrefab);
     public GameObject GetEnemyC()         => GetFromEnemyPool(enemyCPool, enemyCPrefab);
     public GameObject GetEnemyD()         => GetFromEnemyPool(enemyDPool, enemyDPrefab);
+    public GameObject GetBoss()           => GetFromEnemyPool(bossPool,   bossPrefab);
     public GameObject GetCoinItem()       => GetFromPool(coinItemPool,  coinItemPrefab);
     public GameObject GetPowerItem()      => GetFromPool(powerItemPool, powerItemPrefab);
     public GameObject GetBoomItem()       => GetFromPool(boomItemPool,  boomItemPrefab);
